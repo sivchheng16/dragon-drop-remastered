@@ -22,3 +22,9 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     // You can expose other apts you need here.
     // ...
 })
+
+contextBridge.exposeInMainWorld('electron', {
+    quit: () => ipcRenderer.invoke('app:quit'),
+    minimize: () => ipcRenderer.invoke('app:minimize'),
+    getVersion: () => ipcRenderer.invoke('app:get-version'),
+})

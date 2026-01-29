@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npx tsc && vite build && electron-builder",
+    "build:linux": "electron-builder --linux",
     "preview": "vite preview"
   },
   "dependencies": {

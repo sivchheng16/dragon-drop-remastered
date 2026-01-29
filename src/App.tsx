@@ -4,9 +4,14 @@ import { GameHud } from './components/GameHud';
 import { GameState } from './game/GameEngine';
 import { MainMenu } from './ui/MainMenu';
 import { LevelSelector } from './ui/LevelSelector';
+import { LoadingScreen } from './ui/LoadingScreen';
+import { AssetLoader } from './game/AssetLoader';
 import './assets/styles/index.css';
 
 function App() {
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadingProgress, setLoadingProgress] = useState(0);
+
     const [gameState, setGameState] = useState<GameState>({
         status: 'MENU',
         score: 0,
@@ -22,6 +27,22 @@ function App() {
     });
 
     const [showTutorial, setShowTutorial] = useState(false);
+
+    useEffect(() => {
+        const loadAssets = async () => {
+            try {
+                await AssetLoader.getInstance().loadAll((progress) => {
+                    setLoadingProgress(progress);
+                });
+                // Small delay to let user see 100%
+                setTimeout(() => setIsLoading(false), 500);
+            } catch (e) {
+                console.error("Failed to load assets", e);
+                setIsLoading(false); // Proceed anyway?
+            }
+        };
+        loadAssets();
+    }, []);
 
     // Global Timer Logic
     useEffect(() => {
@@ -64,6 +85,10 @@ function App() {
             setCompletedLevels([...completedLevels, levelId]);
         }
     };
+
+    if (isLoading) {
+        return <LoadingScreen progress={loadingProgress} />;
+    }
 
     return (
         <div className="app-container">

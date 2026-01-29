@@ -1,23 +1,59 @@
 import { LevelData } from './levels';
-import dragonImg from '../assets/images/dragon.png';
-import wallImg from '../assets/images/wall.png';
-import foodImg from '../assets/images/food.png';
-import skyImg from '../assets/images/sky.png';
-import grassImg from '../assets/images/grass.png';
-import stoneFloorImg from '../assets/images/stone_floor.png';
-import stoneWallImg from '../assets/images/stone_wall.png';
-import lavaImg from '../assets/images/lava.png';
-import obsidianFloorImg from '../assets/images/obsidian_floor.png';
-import obsidianWallImg from '../assets/images/obsidian_wall.png';
-import crackedFloorImg from '../assets/images/cracked_floor.png';
-import goldFloorImg from '../assets/images/gold_floor.png';
-import knightImg from '../assets/images/knight.png';
-import wingsImg from '../assets/images/wings.png';
 import { AudioManager } from './AudioManager';
 import { ParticleSystem } from './ParticleSystem';
 import { ProgressManager } from './ProgressManager';
+import { AssetLoader } from './AssetLoader';
 
 export type GameStatus = 'MENU' | 'LEVEL_SELECT' | 'PLAYING' | 'WON' | 'GAME_OVER';
+
+export interface Point {
+    x: number;
+    y: number;
+}
+
+export interface Point {
+    x: number;
+    y: number;
+}
+
+export interface Gate {
+    id: string; // Changed to string
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    isOpen: boolean;
+}
+
+export interface Button {
+    id?: string; // Optional or generated
+    x: number;
+    y: number;
+    targetGateId: string;
+    isPressed: boolean;
+}
+
+export interface MovingEntity {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    currentPos: Point;
+    startTime: number;
+    duration: number;
+    path: Point[];
+}
+
+export interface CrumblingFloor {
+    id: string; // Add ID as it is in levels.ts
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    duration: number;
+    triggeredAt: number | null;
+    isCrumbled: boolean;
+}
 
 export interface GameState {
     status: GameStatus;
@@ -26,12 +62,17 @@ export interface GameState {
     currentLevelIdx: number;
     timeLeft: number;
     stars: number; // Stars derived from current run
-    gates: any[]; // Store runtime state of gates
-    buttons: any[]; // Store runtime state of buttons
-    movingWalls: any[]; // Store runtime state of moving walls
-    crumblingFloors: any[]; // Store runtime state of crumbling floors
-    enemies: any[]; // Store runtime state of enemies
-    movingGoal?: any; // Store runtime state of moving goal
+    gates: Gate[];
+    buttons: Button[];
+    movingWalls: MovingEntity[];
+    crumblingFloors: CrumblingFloor[];
+    enemies: MovingEntity[];
+    movingGoal?: {
+        currentPos: Point;
+        startTime: number;
+        duration: number;
+        path: Point[];
+    };
 }
 
 export class GameEngine {
@@ -71,6 +112,7 @@ export class GameEngine {
     };
     private patterns: { wall: CanvasPattern | null, sky: CanvasPattern | null, grass: CanvasPattern | null, stoneFloor: CanvasPattern | null, stoneWall: CanvasPattern | null, obsidianFloor: CanvasPattern | null, obsidianWall: CanvasPattern | null, lava: CanvasPattern | null, goldFloor: CanvasPattern | null } = { wall: null, sky: null, grass: null, stoneFloor: null, stoneWall: null, obsidianFloor: null, obsidianWall: null, lava: null, goldFloor: null };
     private onStateChange: (s: GameState) => void;
+    private rect: DOMRect;
 
     constructor(canvas: HTMLCanvasElement, level: LevelData, state: GameState, onStateChange: (s: GameState) => void) {
         this.canvas = canvas;
@@ -78,10 +120,12 @@ export class GameEngine {
         this.level = level;
         this.state = state;
 
+        this.rect = this.canvas.getBoundingClientRect();
+
         // Initialize runtime state for interactive elements
         if (!this.state.gates) {
             this.state.gates = level.gates ? level.gates.map(g => ({ ...g, isOpen: false })) : [];
-            this.state.buttons = level.buttons ? level.buttons.map(b => ({ ...b, isPressed: false })) : [];
+            this.state.buttons = level.buttons ? level.buttons.map((b, i) => ({ ...b, id: `btn_${i}`, isPressed: false })) : [];
             this.state.movingWalls = level.movingWalls ? level.movingWalls.map(m => ({
                 ...m,
                 currentPos: { x: m.x, y: m.y },
@@ -101,68 +145,62 @@ export class GameEngine {
                 ...level.movingGoal,
                 currentPos: { x: level.goal.x, y: level.goal.y }, // Start at goal pos
                 startTime: Date.now()
-            } : null;
+            } : undefined;
         }
 
         this.onStateChange = onStateChange;
         this.dragonPos = { ...level.start };
 
-        this.loadAssets();
+        this.initAssets();
         this.bindEvents();
         this.tick();
     }
 
-    private loadAssets() {
-        this.assets.dragon.src = dragonImg;
-        this.assets.wall.src = wallImg;
-        this.assets.food.src = foodImg;
-        this.assets.sky.src = skyImg;
-        this.assets.grass.src = grassImg;
-        this.assets.stoneFloor.src = stoneFloorImg;
-        this.assets.stoneWall.src = stoneWallImg;
-        this.assets.cloud.src = '../assets/images/cloud.png'; // Should use imported image but trying to keep minimal changes
-        this.assets.lava.src = lavaImg;
-        this.assets.obsidianFloor.src = obsidianFloorImg;
-        this.assets.obsidianWall.src = obsidianWallImg;
-        this.assets.crackedFloor.src = crackedFloorImg;
-        this.assets.goldFloor.src = goldFloorImg;
-        this.assets.knight.src = knightImg;
-        this.assets.wings.src = wingsImg;
+    private initAssets() {
+        const loader = AssetLoader.getInstance();
 
-        this.assets.wall.onload = () => {
-            this.patterns.wall = this.ctx.createPattern(this.assets.wall, 'repeat');
-        };
-        this.assets.sky.onload = () => {
-            this.patterns.sky = this.ctx.createPattern(this.assets.sky, 'repeat');
-        };
-        this.assets.grass.onload = () => {
-            this.patterns.grass = this.ctx.createPattern(this.assets.grass, 'repeat');
-        };
-        this.assets.stoneFloor.onload = () => {
-            this.patterns.stoneFloor = this.ctx.createPattern(this.assets.stoneFloor, 'repeat');
-        };
-        this.assets.stoneWall.onload = () => {
-            this.patterns.stoneWall = this.ctx.createPattern(this.assets.stoneWall, 'repeat');
-        };
-        this.assets.obsidianFloor.onload = () => {
-            this.patterns.obsidianFloor = this.ctx.createPattern(this.assets.obsidianFloor, 'repeat');
-        };
-        this.assets.obsidianWall.onload = () => {
-            this.patterns.obsidianWall = this.ctx.createPattern(this.assets.obsidianWall, 'repeat');
-        };
-        this.assets.lava.onload = () => {
-            this.patterns.lava = this.ctx.createPattern(this.assets.lava, 'repeat');
-        };
-        this.assets.goldFloor.onload = () => {
-            this.patterns.goldFloor = this.ctx.createPattern(this.assets.goldFloor, 'repeat');
-        };
+        this.assets.dragon = loader.get('dragon');
+        this.assets.wall = loader.get('wall');
+        this.assets.food = loader.get('food');
+        this.assets.sky = loader.get('sky');
+        this.assets.grass = loader.get('grass');
+        this.assets.stoneFloor = loader.get('stoneFloor');
+        this.assets.stoneWall = loader.get('stoneWall');
+        this.assets.cloud = loader.get('cloud');
+        this.assets.lava = loader.get('lava');
+        this.assets.obsidianFloor = loader.get('obsidianFloor');
+        this.assets.obsidianWall = loader.get('obsidianWall');
+        this.assets.crackedFloor = loader.get('crackedFloor');
+        this.assets.goldFloor = loader.get('goldFloor');
+        this.assets.knight = loader.get('knight');
+        this.assets.wings = loader.get('wings');
+
+        // Create patterns
+        if (this.assets.wall.complete) this.patterns.wall = this.ctx.createPattern(this.assets.wall, 'repeat');
+        if (this.assets.sky.complete) this.patterns.sky = this.ctx.createPattern(this.assets.sky, 'repeat');
+        if (this.assets.grass.complete) this.patterns.grass = this.ctx.createPattern(this.assets.grass, 'repeat');
+        if (this.assets.stoneFloor.complete) this.patterns.stoneFloor = this.ctx.createPattern(this.assets.stoneFloor, 'repeat');
+        if (this.assets.stoneWall.complete) this.patterns.stoneWall = this.ctx.createPattern(this.assets.stoneWall, 'repeat');
+        if (this.assets.obsidianFloor.complete) this.patterns.obsidianFloor = this.ctx.createPattern(this.assets.obsidianFloor, 'repeat');
+        if (this.assets.obsidianWall.complete) this.patterns.obsidianWall = this.ctx.createPattern(this.assets.obsidianWall, 'repeat');
+        if (this.assets.lava.complete) this.patterns.lava = this.ctx.createPattern(this.assets.lava, 'repeat');
+        if (this.assets.goldFloor.complete) this.patterns.goldFloor = this.ctx.createPattern(this.assets.goldFloor, 'repeat');
     }
+
 
     private bindEvents() {
         this.canvas.addEventListener('mousedown', this.onMouseDown);
         this.canvas.addEventListener('mousemove', this.onMouseMove);
         this.canvas.addEventListener('mouseup', this.onMouseUp);
         this.canvas.addEventListener('mouseleave', this.onMouseUp);
+
+        // Touch events
+        this.canvas.addEventListener('touchstart', this.onTouchStart, { passive: false });
+        this.canvas.addEventListener('touchmove', this.onTouchMove, { passive: false });
+        this.canvas.addEventListener('touchend', this.onTouchEnd);
+        this.canvas.addEventListener('touchcancel', this.onTouchEnd);
+
+        window.addEventListener('resize', this.onResize);
     }
 
     public dispose() {
@@ -173,18 +211,77 @@ export class GameEngine {
         this.canvas.removeEventListener('mousemove', this.onMouseMove);
         this.canvas.removeEventListener('mouseup', this.onMouseUp);
         this.canvas.removeEventListener('mouseleave', this.onMouseUp);
+
+        this.canvas.removeEventListener('touchstart', this.onTouchStart);
+        this.canvas.removeEventListener('touchmove', this.onTouchMove);
+        this.canvas.removeEventListener('touchend', this.onTouchEnd);
+        this.canvas.removeEventListener('touchcancel', this.onTouchEnd);
+
+        window.removeEventListener('resize', this.onResize);
+    }
+
+    private onResize = () => {
+        this.rect = this.canvas.getBoundingClientRect();
     }
 
     /* --- Input Handling --- */
-    private getMousePos(e: MouseEvent) {
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = 1000 / rect.width;
-        const scaleY = 1000 / rect.height;
+    private getMousePos(e: MouseEvent | Touch) {
+        // Use cached rect
+        const scaleX = 1000 / this.rect.width;
+        const scaleY = 1000 / this.rect.height;
         return {
-            x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top) * scaleY
+            x: (e.clientX - this.rect.left) * scaleX,
+            y: (e.clientY - this.rect.top) * scaleY
         };
     }
+
+    private onTouchStart = (e: TouchEvent) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const pos = this.getMousePos(touch);
+
+        // Call logic same as mouse down
+        AudioManager.getInstance().init();
+
+        if (this.state.status !== 'PLAYING') return;
+
+        // Check Dragon click
+        const dist = Math.hypot(pos.x - this.dragonPos.x, pos.y - this.dragonPos.y);
+        if (dist < 80) { // Larger hit area for touch
+            this.isDragging = true;
+            this.dragOffset = { x: this.dragonPos.x - pos.x, y: this.dragonPos.y - pos.y };
+            AudioManager.getInstance().playSFX('pop');
+            this.particleSystem.emit(this.dragonPos.x, this.dragonPos.y, 10, '#FFFFFF');
+        }
+    };
+
+    private onTouchMove = (e: TouchEvent) => {
+        e.preventDefault();
+        if (!this.isDragging) return;
+        const touch = e.touches[0];
+        const pos = this.getMousePos(touch);
+
+        // Update Facing
+        if (pos.x < this.dragonPos.x) {
+            this.facing = 'left';
+        } else {
+            this.facing = 'right';
+        }
+
+        this.dragonPos.x = pos.x + this.dragOffset.x;
+        this.dragonPos.y = pos.y + this.dragOffset.y;
+
+        // Trail
+        if (Math.random() < 0.3) {
+            this.particleSystem.emit(this.dragonPos.x, this.dragonPos.y + 20, 1, '#FFA500');
+        }
+
+        this.checkCollisions();
+    };
+
+    private onTouchEnd = (e: TouchEvent) => {
+        this.isDragging = false;
+    };
 
     private onMouseDown = (e: MouseEvent) => {
         // Ensure audio is initialized on first interaction
