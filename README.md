@@ -1,4 +1,8 @@
-# React + Vite
+# Dragon Drop Remastered
+
+This game is made for students near the border to learn how to use a computer mouse.
+
+## Technical Details (React + Vite)
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
