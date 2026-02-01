@@ -59,18 +59,37 @@ export interface Enemy {
     startTime?: number;
 }
 
+// Tilemap Constants
+export const TILE_SIZE = 50; // Align with common wall width
+export enum TileType {
+    EMPTY = 0,
+    WALL = 1,
+    // Future expansion: 2 = Water, 3 = Spike, etc.
+}
+
+export interface Portal {
+    id: string;
+    x: number;
+    y: number;
+    targetPortalId: string;
+    color: 'blue' | 'orange';
+}
+
 export interface LevelData {
     id: number;
     theme: LevelTheme;
     start: { x: number; y: number };
     goal: { x: number; y: number };
     walls: { x: number; y: number; w: number; h: number }[];
+    tileMap?: number[][]; // Optional Grid: [row][col]
     gates?: Gate[];
     buttons?: Button[];
+    portals?: Portal[];
     movingWalls?: MovingWall[];
     hazards?: Hazard[];
     crumblingFloors?: CrumblingFloor[];
     enemies?: Enemy[];
+    collectibles?: { x: number; y: number; type: 'coin' | 'gem' | 'shield' | 'slow_mo' | 'time_freeze' }[]; // Coins, gems, and power-ups
     movingGoal?: {
         path: { x: number; y: number }[];
         duration: number;
@@ -79,6 +98,10 @@ export interface LevelData {
     };
     timeLimit: number;
     starTime?: [number, number]; // [3-star threshold, 2-star threshold] (Time Left)
+    difficulty?: number; // 1-10 scale for balancing
+    isBoss?: boolean; // Boss level flag
+    isBreather?: boolean; // Breather/recovery level flag
+    tutorialText?: string; // Optional tutorial message for intro levels
 }
 
 // Helper for boundaries
@@ -97,11 +120,39 @@ export const LEVELS: LevelData[] = [
         start: { x: 100, y: 800 },
         goal: { x: 800, y: 150 },
         timeLimit: 100,
-        walls: [
-            ...BOUNDARIES,
-            { x: 300, y: 100, w: 50, h: 700 }, // Vertical
-            { x: 600, y: 300, w: 50, h: 700 }, // Vertical
+        difficulty: 1, // Very Easy - Tutorial level
+        tutorialText: "Drag the dragon to the food!",
+        walls: [], // Empty, using tileMap
+        collectibles: [
+            { x: 200, y: 400, type: 'coin' },
+            { x: 400, y: 600, type: 'coin' },
+            { x: 600, y: 400, type: 'coin' },
+            { x: 500, y: 300, type: 'gem' }
         ],
+        tileMap: [
+            // 20x20 Grid. 0=Empty, 1=Wall
+            // Border Top
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Gap in second wall
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1], // Gap in first wall
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ]
     },
     // 2. The Bucket
     {
@@ -158,10 +209,11 @@ export const LEVELS: LevelData[] = [
         timeLimit: 80,
         walls: [
             ...BOUNDARIES,
-            { x: 475, y: 0, w: 50, h: 425 },
-            { x: 475, y: 575, w: 50, h: 425 },
-            { x: 0, y: 475, w: 425, h: 50 },
-            { x: 575, y: 475, w: 425, h: 50 },
+            // Shortened walls to create gaps around center ("Rotary" style)
+            { x: 475, y: 0, w: 50, h: 350 }, // Top (Gap 75px)
+            { x: 475, y: 650, w: 50, h: 350 }, // Bottom (Gap 75px)
+            { x: 0, y: 475, w: 350, h: 50 }, // Left (Gap 75px)
+            { x: 650, y: 475, w: 350, h: 50 }, // Right (Gap 75px)
             // Small blockers in center
             { x: 425, y: 425, w: 150, h: 150 },
         ],
@@ -177,9 +229,9 @@ export const LEVELS: LevelData[] = [
             ...BOUNDARIES,
             { x: 0, y: 300, w: 1000, h: 50 },
             { x: 0, y: 650, w: 1000, h: 50 },
-            // Obstacles in tunnel
-            { x: 300, y: 350, w: 50, h: 200 },
-            { x: 600, y: 450, w: 50, h: 200 },
+            // Obstacles in tunnel - Made smaller for fairer passage
+            { x: 300, y: 375, w: 50, h: 150 }, // Top gap ~75, Bottom ~125
+            { x: 600, y: 475, w: 50, h: 150 }, // Top gap ~125, Bottom ~75
         ],
     },
     // 7. Checkerboard
@@ -210,7 +262,7 @@ export const LEVELS: LevelData[] = [
             { x: 300, y: 300, w: 400, h: 50 }, // Top
             { x: 300, y: 650, w: 400, h: 50 }, // Bottom
             { x: 300, y: 300, w: 50, h: 400 }, // Left
-            { x: 650, y: 300, w: 50, h: 300 }, // Right (Gap at bottom)
+            { x: 650, y: 300, w: 50, h: 250 }, // Right (Gap at bottom increased -> 100px)
         ],
     },
     // 9. Diagonal Step
@@ -263,9 +315,11 @@ export const LEVELS: LevelData[] = [
         timeLimit: 80,
         walls: [
             ...BOUNDARIES,
-            { x: 300, y: 0, w: 50, h: 900 },
-            { x: 650, y: 100, w: 50, h: 900 },
-            { x: 350, y: 500, w: 300, h: 50 },
+            { x: 300, y: 0, w: 50, h: 850 },
+            { x: 650, y: 150, w: 50, h: 850 },
+            // Gap in the middle (x=450 to 550 is open)
+            { x: 350, y: 500, w: 100, h: 50 },
+            { x: 550, y: 500, w: 100, h: 50 },
         ],
     },
     // 13. Corners
@@ -295,6 +349,10 @@ export const LEVELS: LevelData[] = [
             { x: 0, y: 600, w: 850, h: 50 },
             { x: 150, y: 800, w: 850, h: 50 },
         ],
+        portals: [
+            { id: 'p1', x: 50, y: 100, color: 'blue', targetPortalId: 'p2' },
+            { id: 'p2', x: 900, y: 850, color: 'orange', targetPortalId: 'p1' }
+        ]
     },
     // 15. The Grid
     {
@@ -305,14 +363,22 @@ export const LEVELS: LevelData[] = [
         timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            // Vertical Bars
-            { x: 200, y: 100, w: 50, h: 800 },
-            { x: 400, y: 100, w: 50, h: 800 },
-            { x: 600, y: 100, w: 50, h: 800 },
-            { x: 800, y: 100, w: 50, h: 800 },
-            // Horizontal Cuts
+            // Horizontal Cuts (Lane boundaries)
             { x: 200, y: 300, w: 600, h: 50 },
             { x: 200, y: 700, w: 600, h: 50 },
+            // Vertical Bars with Slalom Gaps
+            // Wall 1 (x=200) - Gap High (350-450)
+            { x: 200, y: 100, w: 50, h: 250 },
+            { x: 200, y: 450, w: 50, h: 450 },
+            // Wall 2 (x=400) - Gap Low (550-650)
+            { x: 400, y: 100, w: 50, h: 450 },
+            { x: 400, y: 650, w: 50, h: 250 },
+            // Wall 3 (x=600) - Gap High (350-450)
+            { x: 600, y: 100, w: 50, h: 250 },
+            { x: 600, y: 450, w: 50, h: 450 },
+            // Wall 4 (x=800) - Gap Low (550-650)
+            { x: 800, y: 100, w: 50, h: 450 },
+            { x: 800, y: 650, w: 50, h: 250 },
         ],
     },
     // 16. Double Spiral
@@ -324,7 +390,12 @@ export const LEVELS: LevelData[] = [
         timeLimit: 100,
         walls: [
             ...BOUNDARIES,
-            { x: 300, y: 300, w: 400, h: 400 }, // Box block center
+            // Hollow Box with Top Gap
+            { x: 300, y: 300, w: 100, h: 50 }, // Top Left (Gap 200px)
+            { x: 600, y: 300, w: 100, h: 50 }, // Top Right
+            { x: 300, y: 650, w: 400, h: 50 }, // Bottom
+            { x: 300, y: 300, w: 50, h: 350 }, // Left
+            { x: 650, y: 300, w: 50, h: 350 }, // Right
             { x: 0, y: 500, w: 300, h: 50 },
             { x: 700, y: 500, w: 300, h: 50 },
         ],
@@ -355,8 +426,6 @@ export const LEVELS: LevelData[] = [
             { x: 400, y: 200, w: 50, h: 800 },
             { x: 600, y: 0, w: 50, h: 800 },
             { x: 800, y: 200, w: 50, h: 800 },
-            { x: 0, y: 400, w: 200, h: 50 },
-            { x: 800, y: 600, w: 200, h: 50 },
         ],
     },
     // 19. Complex Maze 2
@@ -368,10 +437,12 @@ export const LEVELS: LevelData[] = [
         timeLimit: 150,
         walls: [
             ...BOUNDARIES,
-            { x: 100, y: 100, w: 800, h: 50 },
-            { x: 100, y: 100, w: 50, h: 800 },
-            { x: 850, y: 100, w: 50, h: 800 },
-            { x: 100, y: 850, w: 800, h: 50 },
+            // Inner Box (Shrunk to create 150px outer gap)
+            { x: 150, y: 150, w: 700, h: 50 }, // Top
+            { x: 150, y: 150, w: 50, h: 700 }, // Left
+            { x: 800, y: 150, w: 50, h: 700 }, // Right
+            { x: 150, y: 800, w: 700, h: 50 }, // Bottom
+
             { x: 300, y: 300, w: 400, h: 400 }, // Center block
             { x: 500, y: 300, w: 50, h: 200 }, // Block connection
         ],
@@ -648,8 +719,8 @@ export const LEVELS: LevelData[] = [
         ],
         buttons: [
             // Need to visit all 3 other corners linearly?
-            { x: 100, y: 100, targetGateId: 'g_dummy1' },
-            { x: 100, y: 900, targetGateId: 'g_dummy2' },
+            { x: 100, y: 100, targetGateId: 'g1' }, // Changed to all open result
+            { x: 100, y: 900, targetGateId: 'g1' },
             { x: 900, y: 100, targetGateId: 'g1' }, // Only this one matters
         ]
     },
@@ -663,7 +734,9 @@ export const LEVELS: LevelData[] = [
         walls: [
             ...BOUNDARIES,
             { x: 0, y: 300, w: 800, h: 50 },
+            { x: 900, y: 300, w: 100, h: 50 }, // Plug gap
             { x: 200, y: 600, w: 800, h: 50 },
+            { x: 0, y: 600, w: 100, h: 50 }, // Plug gap
         ],
         gates: [
             { id: 'g1', x: 800, y: 300, w: 100, h: 50 },
@@ -672,6 +745,10 @@ export const LEVELS: LevelData[] = [
         buttons: [
             { x: 500, y: 100, targetGateId: 'g1' },
             { x: 500, y: 450, targetGateId: 'g2' },
+        ],
+        portals: [
+            { id: 'p1', x: 900, y: 100, color: 'blue', targetPortalId: 'p2' },
+            { id: 'p2', x: 500, y: 800, color: 'orange', targetPortalId: 'p1' }
         ]
     },
     // 34. The Trap
@@ -721,18 +798,15 @@ export const LEVELS: LevelData[] = [
         goal: { x: 900, y: 900 },
         timeLimit: 90,
         walls: BOUNDARIES,
-        buttons: [
-            { x: 200, y: 200, targetGateId: 'g1' },
-            { x: 500, y: 500, targetGateId: 'g2' },
-            { x: 800, y: 800, targetGateId: 'g3' },
-        ],
         gates: [
-            { id: 'g1', x: 850, y: 850, w: 150, h: 20 }, // Blocking goal
-            { id: 'g2', x: 850, y: 870, w: 20, h: 130 },
-            { id: 'g3', x: 850, y: 850, w: 20, h: 20 }, // just filler
             // Actually let's block the goal corner
             { id: 'g_main', x: 800, y: 800, w: 200, h: 50 },
             { id: 'g_main2', x: 800, y: 800, w: 50, h: 200 },
+        ],
+        buttons: [
+            { x: 200, y: 200, targetGateId: 'g_main' },
+            { x: 500, y: 500, targetGateId: 'g_main' },
+            { x: 800, y: 800, targetGateId: 'g_main2' },
         ]
     },
     // 37. Triple Lock
@@ -894,81 +968,6 @@ export const LEVELS: LevelData[] = [
             { id: 'h1', x: 200, y: 500, w: 50, h: 50, duration: 3000, path: [{ x: 800, y: 500 }] },
         ]
     },
-    // --- WORLD 3: The Cloudy Sky ---
-    // 41. Up in the Air
-    {
-        id: 41,
-        theme: 'sky',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingWalls: [
-            {
-                id: 'm1', x: 200, y: 400, w: 100, h: 60,
-                duration: 3000,
-                path: [{ x: 700, y: 400 }]
-            }
-        ]
-    },
-    // 42. Cloud Traffic
-    {
-        id: 42,
-        theme: 'sky',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'm1', x: 400, y: 100, w: 60, h: 60, duration: 2000, path: [{ x: 400, y: 800 }] },
-            { id: 'm2', x: 500, y: 800, w: 60, h: 60, duration: 2000, path: [{ x: 500, y: 100 }] },
-        ]
-    },
-    // 43. Windy Path
-    {
-        id: 43,
-        theme: 'sky',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 80,
-        walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'm1', x: 100, y: 300, w: 200, h: 50, duration: 4000, path: [{ x: 700, y: 300 }] },
-            { id: 'm2', x: 700, y: 600, w: 200, h: 50, duration: 4000, path: [{ x: 100, y: 600 }] },
-        ]
-    },
-    // 44. The Squeeze
-    {
-        id: 44,
-        theme: 'sky',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 100,
-        walls: [
-            ...BOUNDARIES,
-            { x: 300, y: 0, w: 50, h: 1000 },
-            { x: 650, y: 0, w: 50, h: 1000 },
-        ],
-        movingWalls: [
-            { id: 'm1', x: 350, y: 400, w: 100, h: 100, duration: 1500, path: [{ x: 550, y: 400 }] },
-            { id: 'm2', x: 550, y: 600, w: 100, h: 100, duration: 1500, path: [{ x: 350, y: 600 }] },
-        ]
-    },
-    // 45. Cloud Grid
-    {
-        id: 45,
-        theme: 'sky',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 120,
-        walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'm1', x: 300, y: 200, w: 50, h: 50, duration: 2000, path: [{ x: 300, y: 800 }] },
-            { id: 'm2', x: 500, y: 800, w: 50, h: 50, duration: 2000, path: [{ x: 500, y: 200 }] },
-            { id: 'm3', x: 700, y: 200, w: 50, h: 50, duration: 2000, path: [{ x: 700, y: 800 }] },
-            { id: 'h1', x: 200, y: 500, w: 50, h: 50, duration: 3000, path: [{ x: 800, y: 500 }] },
-        ]
-    },
     // 46. Storm Front
     {
         id: 46,
@@ -993,7 +992,6 @@ export const LEVELS: LevelData[] = [
         movingWalls: [
             { id: 'm1', x: 200, y: 800, w: 50, h: 50, duration: 3000, path: [{ x: 800, y: 200 }] },
             { id: 'm2', x: 800, y: 800, w: 50, h: 50, duration: 3000, path: [{ x: 200, y: 200 }] },
-            { id: 'm3', x: 500, y: 500, w: 100, h: 100, duration: 5000, path: [{ x: 500, y: 500 }] },
         ]
     },
     // 48. The Gauntlet
@@ -1044,7 +1042,6 @@ export const LEVELS: LevelData[] = [
         movingWalls: [
             { id: 'boss1', x: 100, y: 100, w: 200, h: 100, duration: 5000, path: [{ x: 700, y: 100 }] },
             { id: 'boss2', x: 700, y: 800, w: 200, h: 100, duration: 5000, path: [{ x: 100, y: 800 }] },
-            { id: 'orb1', x: 450, y: 450, w: 100, h: 100, duration: 1000, path: [{ x: 450, y: 450 }] },
         ]
     },
     // 51. Fast Lane
@@ -1062,12 +1059,104 @@ export const LEVELS: LevelData[] = [
     },
     { id: 53, theme: 'sky', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 120, walls: BOUNDARIES, movingWalls: [{ id: 'm1', x: 0, y: 500, w: 1000, h: 50, duration: 4000, path: [{ x: 0, y: 200 }] }] },
     { id: 54, theme: 'sky', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 120, walls: BOUNDARIES, movingWalls: [{ id: 'm1', x: 500, y: 0, w: 50, h: 1000, duration: 4000, path: [{ x: 800, y: 0 }] }] },
-    { id: 55, theme: 'sky', start: { x: 200, y: 200 }, goal: { x: 800, y: 800 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [] },
-    { id: 56, theme: 'sky', start: { x: 500, y: 500 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [] },
-    { id: 57, theme: 'sky', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [] },
-    { id: 58, theme: 'sky', start: { x: 500, y: 100 }, goal: { x: 500, y: 900 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [] },
-    { id: 59, theme: 'sky', start: { x: 250, y: 250 }, goal: { x: 750, y: 750 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [] },
-    { id: 60, theme: 'sky', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [] },
+    // 55. Speed Challenge: Coin Rush
+    {
+        id: 55,
+        theme: 'sky',
+        start: { x: 100, y: 900 },
+        goal: { x: 900, y: 100 },
+        timeLimit: 30, // Fast!
+        walls: BOUNDARIES,
+        collectibles: [
+            { x: 200, y: 800, type: 'coin' }, { x: 300, y: 700, type: 'coin' }, { x: 400, y: 600, type: 'coin' },
+            { x: 500, y: 500, type: 'coin' }, { x: 600, y: 400, type: 'coin' }, { x: 700, y: 300, type: 'coin' },
+            { x: 800, y: 200, type: 'coin' }
+        ],
+        movingWalls: [
+            { id: 'm1', x: 400, y: 200, w: 50, h: 50, duration: 1500, path: [{ x: 400, y: 800 }] },
+            { id: 'm2', x: 600, y: 800, w: 50, h: 50, duration: 1500, path: [{ x: 600, y: 200 }] }
+        ]
+    },
+    // 56. Speed Challenge: Narrow Gaps
+    {
+        id: 56,
+        theme: 'sky',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 25,
+        walls: [
+            ...BOUNDARIES,
+            { x: 300, y: 700, w: 150, h: 50 },
+            { x: 550, y: 700, w: 150, h: 50 },
+            { x: 300, y: 500, w: 150, h: 50 },
+            { x: 550, y: 500, w: 150, h: 50 },
+            { x: 300, y: 300, w: 150, h: 50 },
+            { x: 550, y: 300, w: 150, h: 50 }
+        ]
+    },
+    // 57. Speed Challenge: Dodge Fast Obstacles
+    {
+        id: 57,
+        theme: 'sky',
+        start: { x: 100, y: 500 },
+        goal: { x: 900, y: 500 },
+        timeLimit: 20,
+        walls: BOUNDARIES,
+        movingWalls: [
+            { id: 'fast1', x: 300, y: 100, w: 50, h: 50, duration: 800, path: [{ x: 300, y: 900 }] },
+            { id: 'fast2', x: 500, y: 900, w: 50, h: 50, duration: 800, path: [{ x: 500, y: 100 }] },
+            { id: 'fast3', x: 700, y: 100, w: 50, h: 50, duration: 800, path: [{ x: 700, y: 900 }] }
+        ]
+    },
+    // 58. Speed Challenge: Multi-Checkpoint Race
+    {
+        id: 58,
+        theme: 'sky',
+        start: { x: 100, y: 100 },
+        goal: { x: 900, y: 900 },
+        timeLimit: 35,
+        walls: [
+            ...BOUNDARIES,
+            { x: 400, y: 0, w: 200, h: 400 },
+            { x: 400, y: 600, w: 200, h: 400 }
+        ],
+        collectibles: [
+            { x: 300, y: 300, type: 'coin' }, { x: 700, y: 300, type: 'coin' },
+            { x: 300, y: 700, type: 'coin' }, { x: 700, y: 700, type: 'coin' }
+        ]
+    },
+    // 59. Speed Challenge: Spiral Sprint
+    {
+        id: 59,
+        theme: 'sky',
+        start: { x: 500, y: 500 },
+        goal: { x: 100, y: 100 },
+        timeLimit: 30,
+        walls: [
+            ...BOUNDARIES,
+            { x: 200, y: 200, w: 600, h: 50 },
+            { x: 750, y: 200, w: 50, h: 600 },
+            { x: 200, y: 750, w: 600, h: 50 },
+            { x: 200, y: 350, w: 50, h: 400 }
+        ],
+        movingWalls: [
+            { id: 'spiral', x: 400, y: 400, w: 100, h: 100, duration: 2000, path: [{ x: 600, y: 600 }] }
+        ]
+    },
+    // 60. Speed Challenge: Boss Rush
+    {
+        id: 60,
+        theme: 'sky',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 40,
+        walls: BOUNDARIES,
+        enemies: [
+            { id: 'e1', x: 200, y: 700, w: 80, h: 80, type: 'patrol', duration: 1000, path: [{ x: 800, y: 700 }] },
+            { id: 'e2', x: 800, y: 500, w: 80, h: 80, type: 'patrol', duration: 1000, path: [{ x: 200, y: 500 }] },
+            { id: 'e3', x: 200, y: 300, w: 80, h: 80, type: 'patrol', duration: 1000, path: [{ x: 800, y: 300 }] }
+        ]
+    },
     // --- WORLD 4: The Lava Cave ---
     // 61. Hot Foot
     {
@@ -1088,7 +1177,7 @@ export const LEVELS: LevelData[] = [
         start: { x: 100, y: 900 },
         goal: { x: 900, y: 100 },
         timeLimit: 80,
-        walls: [...BOUNDARIES, { x: 0, y: 0, w: 1000, h: 1000 }],
+        walls: BOUNDARIES,
         hazards: [
             { x: 0, y: 200, w: 1000, h: 600 } // Huge river
         ],
@@ -1139,9 +1228,7 @@ export const LEVELS: LevelData[] = [
         goal: { x: 900, y: 500 },
         timeLimit: 60,
         walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'raft1', x: 200, y: 400, w: 100, h: 200, duration: 3000, path: [{ x: 200, y: 400 }] }
-        ],
+        movingWalls: [],
         hazards: [
             { x: 200, y: 0, w: 100, h: 1000 },
             { x: 500, y: 0, w: 100, h: 1000 },
@@ -1159,15 +1246,174 @@ export const LEVELS: LevelData[] = [
     { id: 69, theme: 'lava', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 0, y: 400, w: 400, h: 200 }, { x: 600, y: 400, w: 400, h: 200 }] },
     { id: 70, theme: 'lava', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 0, y: 200, w: 1000, h: 50 }, { x: 0, y: 600, w: 1000, h: 50 }] },
     { id: 71, theme: 'lava', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 200, w: 50, h: 50 }] },
-    { id: 72, theme: 'lava', start: { x: 900, y: 900 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 73, theme: 'lava', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 74, theme: 'lava', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 75, theme: 'lava', start: { x: 900, y: 100 }, goal: { x: 100, y: 900 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 76, theme: 'lava', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 77, theme: 'lava', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 78, theme: 'lava', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 79, theme: 'lava', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
-    { id: 80, theme: 'lava', start: { x: 900, y: 900 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [] },
+    // 72. Precision Challenge: Narrow Lava Corridors
+    {
+        id: 72,
+        theme: 'lava',
+        start: { x: 100, y: 500 },
+        goal: { x: 900, y: 500 },
+        timeLimit: 60,
+        walls: [
+            ...BOUNDARIES,
+            { x: 0, y: 400, w: 1000, h: 50 },
+            { x: 0, y: 550, w: 1000, h: 50 }
+        ],
+        hazards: [
+            { x: 0, y: 450, w: 1000, h: 100 }
+        ]
+    },
+    // 73. Precision Challenge: Gem Collection
+    {
+        id: 73,
+        theme: 'lava',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 90,
+        walls: BOUNDARIES,
+        hazards: [
+            { x: 200, y: 300, w: 200, h: 50 },
+            { x: 600, y: 500, w: 200, h: 50 },
+            { x: 200, y: 700, w: 200, h: 50 }
+        ],
+        collectibles: [
+            { x: 300, y: 350, type: 'gem' }, { x: 700, y: 550, type: 'gem' }, { x: 300, y: 750, type: 'gem' },
+            { x: 500, y: 450, type: 'gem' }, { x: 500, y: 650, type: 'gem' }
+        ]
+    },
+    // 74. Precision Challenge: Crumbling Floor Parkour
+    {
+        id: 74,
+        theme: 'lava',
+        start: { x: 100, y: 100 },
+        goal: { x: 900, y: 900 },
+        timeLimit: 50,
+        walls: BOUNDARIES,
+        hazards: [
+            { x: 0, y: 400, w: 1000, h: 200 }
+        ],
+        crumblingFloors: [
+            { id: 'c1', x: 100, y: 400, w: 100, h: 200, duration: 1500 },
+            { id: 'c2', x: 300, y: 400, w: 100, h: 200, duration: 1500 },
+            { id: 'c3', x: 500, y: 400, w: 100, h: 200, duration: 1500 },
+            { id: 'c4', x: 700, y: 400, w: 100, h: 200, duration: 1500 }
+        ]
+    },
+    // 75. Precision Challenge: Moving Platform Jumps
+    {
+        id: 75,
+        theme: 'lava',
+        start: { x: 100, y: 500 },
+        goal: { x: 900, y: 500 },
+        timeLimit: 70,
+        walls: BOUNDARIES,
+        hazards: [
+            { x: 200, y: 0, w: 600, h: 1000 }
+        ],
+        movingWalls: [
+            { id: 'platform1', x: 200, y: 450, w: 100, h: 100, duration: 3000, path: [{ x: 700, y: 450 }] }
+        ]
+    },
+    // 76. Precision Challenge: Timed Gate Sequence
+    {
+        id: 76,
+        theme: 'lava',
+        start: { x: 100, y: 500 },
+        goal: { x: 900, y: 500 },
+        timeLimit: 80,
+        walls: BOUNDARIES,
+        hazards: [
+            { x: 300, y: 0, w: 50, h: 1000 },
+            { x: 650, y: 0, w: 50, h: 1000 }
+        ],
+        gates: [
+            { id: 'g1', x: 300, y: 450, w: 50, h: 100 },
+            { id: 'g2', x: 650, y: 450, w: 50, h: 100 }
+        ],
+        buttons: [
+            { x: 200, y: 500, targetGateId: 'g1' },
+            { x: 550, y: 500, targetGateId: 'g2' }
+        ]
+    },
+    // 77. Precision Challenge: Hazard Maze
+    {
+        id: 77,
+        theme: 'lava',
+        start: { x: 100, y: 100 },
+        goal: { x: 900, y: 900 },
+        timeLimit: 90,
+        walls: [
+            ...BOUNDARIES,
+            { x: 300, y: 0, w: 50, h: 700 },
+            { x: 600, y: 300, w: 50, h: 700 }
+        ],
+        hazards: [
+            { x: 350, y: 200, w: 250, h: 50 },
+            { x: 100, y: 500, w: 250, h: 50 },
+            { x: 650, y: 700, w: 250, h: 50 }
+        ]
+    },
+    // 78. Precision Challenge: Rotating Obstacles
+    {
+        id: 78,
+        theme: 'lava',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 60,
+        walls: BOUNDARIES,
+        movingWalls: [
+            { id: 'rot1', x: 300, y: 700, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 700 }] },
+            { id: 'rot2', x: 600, y: 500, w: 100, h: 50, duration: 2000, path: [{ x: 300, y: 500 }] },
+            { id: 'rot3', x: 300, y: 300, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 300 }] }
+        ],
+        hazards: [
+            { x: 200, y: 650, w: 600, h: 50 },
+            { x: 200, y: 450, w: 600, h: 50 },
+            { x: 200, y: 250, w: 600, h: 50 }
+        ]
+    },
+    // 79. Precision Challenge: Shrinking Safe Zones
+    {
+        id: 79,
+        theme: 'lava',
+        start: { x: 100, y: 900 },
+        goal: { x: 900, y: 100 },
+        timeLimit: 45,
+        walls: BOUNDARIES,
+        hazards: [
+            { x: 0, y: 0, w: 200, h: 1000 },
+            { x: 800, y: 0, w: 200, h: 1000 },
+            { x: 200, y: 0, w: 600, h: 200 },
+            { x: 200, y: 800, w: 600, h: 200 }
+        ],
+        crumblingFloors: [
+            { id: 'safe1', x: 200, y: 400, w: 600, h: 200, duration: 3000 }
+        ]
+    },
+    // 80. Precision Challenge: Final Gauntlet
+    {
+        id: 80,
+        theme: 'lava',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 100,
+        walls: [
+            ...BOUNDARIES,
+            { x: 300, y: 0, w: 50, h: 1000 },
+            { x: 650, y: 0, w: 50, h: 1000 }
+        ],
+        hazards: [
+            { x: 350, y: 700, w: 300, h: 50 },
+            { x: 350, y: 400, w: 300, h: 50 }
+        ],
+        movingWalls: [
+            { id: 'mw1', x: 350, y: 800, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 800 }] },
+            { id: 'mw2', x: 550, y: 600, w: 100, h: 50, duration: 1500, path: [{ x: 350, y: 600 }] },
+            { id: 'mw3', x: 350, y: 300, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 300 }] }
+        ],
+        crumblingFloors: [
+            { id: 'c1', x: 350, y: 500, w: 300, h: 100, duration: 2000 }
+        ]
+    },
     // --- WORLD 5: The Dragon's Lair ---
     // 81. Gold Rush
     {

@@ -1,4 +1,11 @@
 import dragonImg from '../assets/images/dragon.png';
+// Dragon Skins
+import dragonGreenImg from '../assets/dragon/dragon-green.png';
+import dragonOrangeImg from '../assets/dragon/dragon-orange.png';
+import dragonRedImg from '../assets/dragon/dragon-red.png';
+import dragonPurpleImg from '../assets/dragon/dragon-popule.png';
+import dragonGrayImg from '../assets/dragon/dragon-gray.png';
+
 import wallImg from '../assets/images/wall.png';
 import foodImg from '../assets/images/food.png';
 import skyImg from '../assets/images/sky.png';
@@ -13,9 +20,18 @@ import crackedFloorImg from '../assets/images/cracked_floor.png';
 import goldFloorImg from '../assets/images/gold_floor.png';
 import knightImg from '../assets/images/knight.png';
 import wingsImg from '../assets/images/wings.png';
+import portalBlueImg from '../assets/images/portal_blue.png';
+import portalOrangeImg from '../assets/images/portal_orange.png';
 
 export const ASSET_MANIFEST = {
     dragon: dragonImg,
+    // Skins
+    dragon_default: dragonGreenImg,
+    dragon_golden: dragonOrangeImg,
+    dragon_ruby: dragonRedImg,
+    dragon_amethyst: dragonPurpleImg,
+    dragon_shadow: dragonGrayImg, // Mapped to gray
+
     wall: wallImg,
     food: foodImg,
     sky: skyImg,
@@ -30,6 +46,8 @@ export const ASSET_MANIFEST = {
     goldFloor: goldFloorImg,
     knight: knightImg,
     wings: wingsImg,
+    portal_blue: portalBlueImg,
+    portal_orange: portalOrangeImg,
 };
 
 export type AssetKey = keyof typeof ASSET_MANIFEST;
