@@ -23,10 +23,18 @@ export const AchievementNotification = ({ achievement, onClose }: AchievementNot
         }
     }, [achievement, onClose]);
 
+    const handleClose = () => {
+        setVisible(false);
+        setTimeout(onClose, 300); // Wait for fade out animation
+    };
+
     if (!achievement) return null;
 
     return (
         <div className={`achievement-notification ${visible ? 'visible' : ''}`}>
+            <button className="achievement-close" onClick={handleClose} aria-label="Close">
+                ×
+            </button>
             <div className="achievement-content">
                 <div className="achievement-icon">{achievement.icon}</div>
                 <div className="achievement-text">
