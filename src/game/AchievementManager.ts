@@ -32,6 +32,7 @@ export interface PlayerStats {
     consecutiveWins: number;
     buttonsPressed: number;
     gatesOpened: number;
+    heartsCollected: number;
 }
 
 const STORAGE_KEY = 'dragon_drop_achievements_v1';
@@ -209,7 +210,8 @@ export class AchievementManager {
             worldsCompleted: [],
             consecutiveWins: 0,
             buttonsPressed: 0,
-            gatesOpened: 0
+            gatesOpened: 0,
+            heartsCollected: 0
         };
     }
 
@@ -379,6 +381,16 @@ export class AchievementManager {
                 description: 'Complete 5 levels in a row without dying',
                 icon: '🛡️',
                 checkCondition: (stats) => stats.consecutiveWins >= 5
+            },
+            {
+                id: 'survivors_heart',
+                name: 'Survivor\'s Heart',
+                description: 'Collect 50 Hearts',
+                icon: '❤️',
+                checkCondition: (stats) => stats.heartsCollected >= 50,
+                isProgressive: true,
+                target: 50,
+                getProgress: (stats) => stats.heartsCollected
             },
 
             // Completion

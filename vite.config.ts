@@ -22,4 +22,9 @@ export default defineConfig({
             renderer: {},
         }),
     ],
+    server: {
+        host: '0.0.0.0', // Listen on all network interfaces
+        port: 5173, // Default Vite port
+        strictPort: false, // Allow fallback to another port if 5173 is taken
+    },
 })

@@ -214,7 +214,7 @@ function App() {
                     onNextLevel={() => {
                         handleLevelComplete(gameState.currentLevelIdx);
                         if (gameState.currentLevelIdx < 100) {
-                            startGame(gameState.currentLevelIdx + 1);
+                            startGame(gameState.currentLevelIdx + 1, true);
                         } else {
                             setGameState(prev => ({ ...prev, status: 'MENU' }));
                         }

@@ -18,6 +18,7 @@ export class ProgressManager {
     private totalDeaths: number = 0;
     private totalCoins: number = 0;
     private totalGems: number = 0;
+    private totalHearts: number = 0;
 
     private constructor() {
         this.loadProgress();
@@ -44,6 +45,7 @@ export class ProgressManager {
                 this.totalDeaths = data.totalDeaths || 0;
                 this.totalCoins = data.totalCoins || 0;
                 this.totalGems = data.totalGems || 0;
+                this.totalHearts = data.totalHearts || 0;
             }
         } catch (e) {
             console.error('Failed to load progress', e);
@@ -62,7 +64,8 @@ export class ProgressManager {
             localStorage.setItem(STATS_KEY, JSON.stringify({
                 totalDeaths: this.totalDeaths,
                 totalCoins: this.totalCoins,
-                totalGems: this.totalGems
+                totalGems: this.totalGems,
+                totalHearts: this.totalHearts
             }));
         } catch (e) {
             console.error('Failed to save progress', e);
@@ -147,12 +150,21 @@ export class ProgressManager {
         this.saveProgress();
     }
 
+    public addHearts(count: number) {
+        this.totalHearts += count;
+        this.saveProgress();
+    }
+
     public getTotalCoins(): number {
         return this.totalCoins;
     }
 
     public getTotalGems(): number {
         return this.totalGems;
+    }
+
+    public getTotalHearts(): number {
+        return this.totalHearts;
     }
 
     public getAllProgress(): Map<number, LevelProgress> {
@@ -164,6 +176,7 @@ export class ProgressManager {
         this.totalDeaths = 0;
         this.totalCoins = 0;
         this.totalGems = 0;
+        this.totalHearts = 0;
         this.saveProgress();
     }
 }

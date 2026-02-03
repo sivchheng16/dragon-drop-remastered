@@ -14,6 +14,7 @@ export interface Button {
     y: number;
     targetGateId: string;
     isPressed?: boolean; // Runtime state
+    timer?: number; // Optional: If set, gate stays open for this many seconds
 }
 
 export interface MovingWall {
@@ -53,7 +54,7 @@ export interface Enemy {
     h: number;
     path: { x: number; y: number }[];
     duration: number;
-    type: 'patrol' | 'chase';
+    type: 'patrol' | 'chase' | 'bug';
     // Runtime
     currentPos?: { x: number; y: number };
     startTime?: number;
@@ -72,7 +73,7 @@ export interface Portal {
     x: number;
     y: number;
     targetPortalId: string;
-    color: 'blue' | 'orange';
+    color?: 'blue' | 'orange'; // Optional, defaults to blue (all portals now blue)
 }
 
 export interface LevelData {
@@ -89,7 +90,7 @@ export interface LevelData {
     hazards?: Hazard[];
     crumblingFloors?: CrumblingFloor[];
     enemies?: Enemy[];
-    collectibles?: { x: number; y: number; type: 'coin' | 'gem' | 'shield' | 'slow_mo' | 'time_freeze' }[]; // Coins, gems, and power-ups
+    collectibles?: { x: number; y: number; type: 'coin' | 'gem' | 'shield' | 'slow_mo' | 'time_freeze' | 'heart' }[]; // Coins, gems, and power-ups
     movingGoal?: {
         path: { x: number; y: number }[];
         duration: number;
@@ -192,12 +193,14 @@ export const LEVELS: LevelData[] = [
         timeLimit: 80,
         walls: [
             ...BOUNDARIES,
-            { x: 150, y: 150, w: 700, h: 50 }, // Top
+            { x: 50, y: 150, w: 750, h: 50 }, // Top
             { x: 800, y: 150, w: 50, h: 700 }, // Right
             { x: 150, y: 800, w: 650, h: 50 }, // Bottom
             { x: 150, y: 300, w: 50, h: 500 }, // Left
-            { x: 300, y: 300, w: 350, h: 50 }, // Inner Top
+            { x: 150, y: 270, w: 500, h: 50 }, // Inner Top
             { x: 600, y: 300, w: 50, h: 350 }, // Inner Right
+            { x: 300, y: 650, w: 350, h: 50 }, // Inner Bottom
+
         ],
     },
     // 5. Four Chambers
@@ -227,8 +230,8 @@ export const LEVELS: LevelData[] = [
         timeLimit: 60,
         walls: [
             ...BOUNDARIES,
-            { x: 0, y: 300, w: 1000, h: 50 },
-            { x: 0, y: 650, w: 1000, h: 50 },
+            { x: 130, y: 300, w: 1000, h: 50 },
+            { x: 130, y: 650, w: 1000, h: 50 },
             // Obstacles in tunnel - Made smaller for fairer passage
             { x: 300, y: 375, w: 50, h: 150 }, // Top gap ~75, Bottom ~125
             { x: 600, y: 475, w: 50, h: 150 }, // Top gap ~125, Bottom ~75
@@ -243,11 +246,11 @@ export const LEVELS: LevelData[] = [
         timeLimit: 100,
         walls: [
             ...BOUNDARIES,
-            { x: 250, y: 250, w: 150, h: 150 },
-            { x: 600, y: 250, w: 150, h: 150 },
-            { x: 250, y: 600, w: 150, h: 150 },
-            { x: 600, y: 600, w: 150, h: 150 },
-            { x: 450, y: 450, w: 100, h: 100 },
+            { x: 150, y: 150, w: 300, h: 300 },
+            { x: 550, y: 150, w: 300, h: 300 },
+            { x: 150, y: 550, w: 300, h: 300 },
+            { x: 550, y: 550, w: 300, h: 300 },
+            // { x: 450, y: 450, w: 100, h: 100 },
         ],
     },
     // 8. The Cage
@@ -271,12 +274,25 @@ export const LEVELS: LevelData[] = [
         theme: 'meadow',
         start: { x: 100, y: 900 },
         goal: { x: 900, y: 100 },
-        timeLimit: 75,
+        timeLimit: 375,
         walls: [
             ...BOUNDARIES,
             { x: 200, y: 600, w: 200, h: 50 },
             { x: 400, y: 400, w: 200, h: 50 },
             { x: 600, y: 200, w: 200, h: 50 },
+            // Extra walls (5x more density)
+            { x: 100, y: 750, w: 100, h: 50 },
+            { x: 300, y: 750, w: 50, h: 100 },
+            { x: 500, y: 550, w: 50, h: 150 },
+            { x: 700, y: 350, w: 50, h: 150 },
+            { x: 800, y: 500, w: 150, h: 50 },
+            { x: 150, y: 300, w: 150, h: 50 },
+            { x: 350, y: 250, w: 50, h: 100 },
+            { x: 550, y: 150, w: 50, h: 100 },
+            { x: 750, y: 50, w: 50, h: 150 },
+            { x: 50, y: 500, w: 150, h: 50 },
+            { x: 450, y: 850, w: 50, h: 100 },
+            { x: 650, y: 650, w: 150, h: 50 },
         ],
     },
     // 10. The Fork
@@ -285,25 +301,58 @@ export const LEVELS: LevelData[] = [
         theme: 'meadow',
         start: { x: 500, y: 900 },
         goal: { x: 500, y: 100 },
-        timeLimit: 60,
+        timeLimit: 300,
         walls: [
             ...BOUNDARIES,
             { x: 450, y: 200, w: 100, h: 600 }, // Center Divider
             { x: 200, y: 400, w: 250, h: 50 }, // Left block
             { x: 550, y: 600, w: 250, h: 50 }, // Right block
+            // x5 Extra Walls
+            { x: 100, y: 200, w: 100, h: 50 },
+            { x: 100, y: 600, w: 100, h: 50 },
+            { x: 300, y: 100, w: 50, h: 200 },
+            { x: 300, y: 600, w: 50, h: 200 },
+            { x: 550, y: 300, w: 150, h: 50 },
+            { x: 700, y: 100, w: 50, h: 250 },
+            { x: 800, y: 400, w: 150, h: 50 },
+            { x: 700, y: 700, w: 50, h: 200 },
+            { x: 850, y: 600, w: 100, h: 50 },
+            { x: 50, y: 800, w: 200, h: 50 },
+            { x: 350, y: 850, w: 50, h: 100 },
+            { x: 600, y: 50, w: 50, h: 100 },
         ],
     },
     // 11. Minimalist
     {
         id: 11,
         theme: 'meadow',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
+        start: { x: 900, y: 900 },
+        goal: { x: 900, y: 250 },
         timeLimit: 40,
         walls: [
             ...BOUNDARIES,
-            { x: 450, y: 0, w: 100, h: 450 },
-            { x: 450, y: 550, w: 100, h: 450 }, // Tiny gap in middle
+            // 10 Random Walls (User Request)
+            { x: 130, y: 150, w: 500, h: 50 },
+            { x: 600, y: 120, w: 50, h: 400 },
+            { x: 100, y: 600, w: 250, h: 50 },
+            { x: 800, y: 700, w: 50, h: 150 },
+            { x: 400, y: 400, w: 100, h: 100 },
+            { x: 500, y: 800, w: 400, h: 50 },
+            { x: 700, y: 300, w: 200, h: 50 },
+            { x: 150, y: 800, w: 50, h: 100 },
+            { x: 350, y: 280, w: 50, h: 300 },
+            { x: 850, y: 150, w: 100, h: 50 },
+            // 10 MORE Random Walls
+            // { x: 250, y: 550, w: 50, h: 50 },
+            // { x: 800, y: 250, w: 100, h: 50 },
+            // { x: 50, y: 350, w: 200, h: 50 },
+            // { x: 650, y: 650, w: 50, h: 200 },
+            // { x: 450, y: 750, w: 150, h: 50 },
+            // { x: 300, y: 400, w: 50, h: 100 },
+            // { x: 750, y: 850, w: 100, h: 50 },
+            // { x: 550, y: 50, w: 50, h: 150 },
+            // { x: 900, y: 700, w: 50, h: 100 },
+            // { x: 50, y: 100, w: 50, h: 50 },
         ],
     },
     // 12. H-Pattern
@@ -326,7 +375,7 @@ export const LEVELS: LevelData[] = [
     {
         id: 13,
         theme: 'meadow',
-        start: { x: 500, y: 500 },
+        start: { x: 900, y: 900 },
         goal: { x: 100, y: 100 },
         timeLimit: 90,
         walls: [
@@ -349,17 +398,14 @@ export const LEVELS: LevelData[] = [
             { x: 0, y: 600, w: 850, h: 50 },
             { x: 150, y: 800, w: 850, h: 50 },
         ],
-        portals: [
-            { id: 'p1', x: 50, y: 100, color: 'blue', targetPortalId: 'p2' },
-            { id: 'p2', x: 900, y: 850, color: 'orange', targetPortalId: 'p1' }
-        ]
+
     },
     // 15. The Grid
     {
         id: 15,
         theme: 'meadow',
         start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
+        goal: { x: 900, y: 100 },
         timeLimit: 90,
         walls: [
             ...BOUNDARIES,
@@ -398,6 +444,27 @@ export const LEVELS: LevelData[] = [
             { x: 650, y: 300, w: 50, h: 350 }, // Right
             { x: 0, y: 500, w: 300, h: 50 },
             { x: 700, y: 500, w: 300, h: 50 },
+            // Messy Debris (User Request)
+            { x: 150, y: 150, w: 50, h: 50 },
+            { x: 800, y: 800, w: 50, h: 50 },
+            { x: 450, y: 200, w: 30, h: 30 },
+            { x: 550, y: 750, w: 40, h: 40 },
+            { x: 200, y: 400, w: 25, h: 25 },
+            { x: 800, y: 400, w: 35, h: 35 },
+            { x: 150, y: 700, w: 40, h: 40 },
+            { x: 850, y: 200, w: 30, h: 30 },
+            { x: 400, y: 400, w: 170, h: 20 },
+            { x: 500, y: 600, w: 20, h: 20 },
+            { x: 350, y: 350, w: 30, h: 30 },
+            { x: 650, y: 650, w: 30, h: 30 },
+            { x: 250, y: 600, w: 40, h: 40 },
+            { x: 750, y: 550, w: 40, h: 40 },
+            { x: 100, y: 850, w: 20, h: 20 },
+            { x: 900, y: 150, w: 25, h: 25 },
+            { x: 400, y: 150, w: 50, h: 20 },
+            { x: 600, y: 850, w: 20, h: 50 },
+            { x: 50, y: 350, w: 30, h: 30 },
+            { x: 950, y: 650, w: 30, h: 30 },
         ],
     },
     // 17. The Narrow Gap
@@ -472,19 +539,30 @@ export const LEVELS: LevelData[] = [
         theme: 'castle',
         start: { x: 100, y: 500 },
         goal: { x: 900, y: 500 },
-        timeLimit: 60,
+        timeLimit: 50, // Reduced time pressure
         walls: [
             ...BOUNDARIES,
-            { x: 450, y: 0, w: 100, h: 1000 }, // Full vertical wall
+            { x: 450, y: 0, w: 100, h: 465 }, // Top Wall (Extended down)
+            { x: 450, y: 535, w: 100, h: 465 }, // Bottom Wall (Extended up)
         ],
-        gates: [
-            { id: 'g1', x: 450, y: 400, w: 100, h: 200 }, // Gate in middle
+        // gates: [
+        //     { id: 'g1', x: 450, y: 465, w: 100, h: 70 }, // Narrow 70px gap
+        // ],
+        // buttons: [
+        //     { x: 250, y: 500, targetGateId: 'g1', timer: 5 }, // Rush timer: 5 seconds!
+        // ],
+        movingWalls: [
+            // Full-height sweeping walls (timing challenge)
+            { id: 'm1', x: 600, y: 0, w: 50, h: 1000, duration: 3000, path: [{ x: 600, y: 0 }, { x: 700, y: 0 }] },
+            { id: 'm2', x: 800, y: 0, w: 50, h: 1000, duration: 3500, path: [{ x: 800, y: 0 }, { x: 700, y: 0 }] },
         ],
-        buttons: [
-            { x: 300, y: 500, targetGateId: 'g1' }, // Button before the wall
+        hazards: [
+            // Vertical lasers in open area
+            { x: 750, y: 100, w: 10, h: 250 },
+            { x: 750, y: 650, w: 10, h: 250 }
         ]
     },
-    // 22. Double Trouble
+    // 22. Double Trouble (Fixed: Added Portals)
     {
         id: 22,
         theme: 'castle',
@@ -496,16 +574,12 @@ export const LEVELS: LevelData[] = [
             { x: 300, y: 0, w: 50, h: 1000 },
             { x: 600, y: 0, w: 50, h: 1000 },
         ],
-        gates: [
-            { id: 'g1', x: 300, y: 400, w: 50, h: 200 },
-            { id: 'g2', x: 600, y: 400, w: 50, h: 200 },
-        ],
-        buttons: [
-            { x: 200, y: 200, targetGateId: 'g1' },
-            { x: 500, y: 800, targetGateId: 'g2' },
+        portals: [
+            { id: 'p1', x: 200, y: 200, color: 'blue', targetPortalId: 'p2' },
+            { id: 'p2', x: 700, y: 800, color: 'orange', targetPortalId: 'p1' }
         ]
     },
-    // 23. Remote Access
+    // 23. Remote Access (Fixed: Reachable Button + Wall Gap)
     {
         id: 23,
         theme: 'castle',
@@ -514,17 +588,17 @@ export const LEVELS: LevelData[] = [
         timeLimit: 80,
         walls: [
             ...BOUNDARIES,
-            { x: 0, y: 500, w: 800, h: 50 },
-            { x: 800, y: 0, w: 50, h: 550 },
+            { x: 0, y: 500, w: 700, h: 50 }, // Shortened to leave room for trapdoor
+            { x: 800, y: 0, w: 50, h: 500 },
         ],
-        gates: [
-            { id: 'g1', x: 800, y: 500, w: 50, h: 200 }, // Gate blocking path
-        ],
-        buttons: [
-            { x: 100, y: 900, targetGateId: 'g1' }, // Button far away
-        ]
+        // gates: [
+        //     { id: 'g1', x: 700, y: 500, w: 100, h: 50 }, // Horizontal Trapdoor
+        // ],
+        // buttons: [
+        //     { x: 100, y: 200, targetGateId: 'g1', timer: 8 },
+        // ]
     },
-    // 24. The Courtyard
+    // 24. The Courtyard (Fixed: Gates inside Walls)
     {
         id: 24,
         theme: 'castle',
@@ -533,19 +607,24 @@ export const LEVELS: LevelData[] = [
         timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 200, w: 600, h: 50 }, // Top box
-            { x: 200, y: 800, w: 600, h: 50 }, // Bottom box
+            // Top Wall Split (Gap 450-550)
+            { x: 200, y: 200, w: 250, h: 50 },
+            { x: 550, y: 200, w: 250, h: 50 },
+            // Bottom Wall Split (Gap 450-550)
+            { x: 200, y: 800, w: 250, h: 50 },
+            { x: 550, y: 800, w: 250, h: 50 },
+
             { x: 200, y: 200, w: 50, h: 600 }, // Left box
             { x: 750, y: 200, w: 50, h: 600 }, // Right box
         ],
-        gates: [
-            { id: 'g1', x: 450, y: 200, w: 100, h: 50 }, // Top Gate
-            { id: 'g2', x: 450, y: 800, w: 100, h: 50 }, // Bottom Gate
-        ],
-        buttons: [
-            { x: 300, y: 500, targetGateId: 'g1' },
-            { x: 700, y: 500, targetGateId: 'g2' }, // Decoy? Or multi-exit?
-        ]
+        // gates: [
+        //     { id: 'g1', x: 450, y: 200, w: 100, h: 50 }, // Top Gate
+        //     { id: 'g2', x: 450, y: 800, w: 100, h: 50 }, // Bottom Gate
+        // ],
+        // buttons: [
+        //     { x: 300, y: 500, targetGateId: 'g1', timer: 6 },
+        //     { x: 700, y: 500, targetGateId: 'g2', timer: 6 },
+        // ]
     },
     // 25. Zig Zag Gates
     {
@@ -560,16 +639,16 @@ export const LEVELS: LevelData[] = [
             { x: 500, y: 200, w: 50, h: 800 },
             { x: 750, y: 0, w: 50, h: 800 },
         ],
-        gates: [
-            { id: 'g1', x: 250, y: 100, w: 50, h: 100 },
-            { id: 'g2', x: 500, y: 800, w: 50, h: 100 },
-            { id: 'g3', x: 750, y: 100, w: 50, h: 100 },
-        ],
-        buttons: [
-            { x: 150, y: 800, targetGateId: 'g1' },
-            { x: 400, y: 100, targetGateId: 'g2' },
-            { x: 650, y: 800, targetGateId: 'g3' },
-        ]
+        // gates: [
+        //     { id: 'g1', x: 250, y: 100, w: 50, h: 100 },
+        //     { id: 'g2', x: 500, y: 800, w: 50, h: 100 },
+        //     { id: 'g3', x: 750, y: 100, w: 50, h: 100 },
+        // ],
+        // buttons: [
+        //     { x: 150, y: 800, targetGateId: 'g1', timer: 8 },
+        //     { x: 400, y: 100, targetGateId: 'g2', timer: 6 },
+        //     { x: 650, y: 800, targetGateId: 'g3', timer: 4 },
+        // ]
     },
     // 26. The Vault
     {
@@ -583,14 +662,16 @@ export const LEVELS: LevelData[] = [
             { x: 300, y: 300, w: 400, h: 50 }, // Inner Box Top
             { x: 300, y: 650, w: 400, h: 50 }, // Inner Box Bottom
             { x: 300, y: 300, w: 50, h: 400 }, // Inner Box Left
-            { x: 650, y: 300, w: 50, h: 400 }, // Inner Box Right
+            // Inner Box Right (Split for Gate)
+            { x: 650, y: 300, w: 50, h: 150 }, // Right Top
+            { x: 650, y: 550, w: 50, h: 150 }, // Right Bottom
         ],
-        gates: [
-            { id: 'g1', x: 650, y: 450, w: 50, h: 100 }, // Gate on Right side
-        ],
-        buttons: [
-            { x: 800, y: 500, targetGateId: 'g1' }, // Button outside to right
-        ]
+        // gates: [
+        //     { id: 'g1', x: 650, y: 450, w: 50, h: 100 }, // Gate on Right side
+        // ],
+        // buttons: [
+        //     { x: 800, y: 500, targetGateId: 'g1', timer: 10 }, // Button outside to right
+        // ]
     },
     // 27. Crossfire
     {
@@ -598,7 +679,7 @@ export const LEVELS: LevelData[] = [
         theme: 'castle',
         start: { x: 100, y: 100 },
         goal: { x: 900, y: 900 },
-        timeLimit: 100,
+        timeLimit: 120,
         walls: [
             ...BOUNDARIES,
             { x: 450, y: 0, w: 100, h: 450 },
@@ -606,100 +687,181 @@ export const LEVELS: LevelData[] = [
             { x: 0, y: 450, w: 450, h: 100 },
             { x: 550, y: 450, w: 450, h: 100 },
         ],
-        gates: [
-            { id: 'g1', x: 450, y: 450, w: 100, h: 50 }, // Center Top
-            { id: 'g2', x: 450, y: 500, w: 100, h: 50 }, // Center Bottom
+        portals: [
+            // TL -> TR
+            { id: 'p1', x: 300, y: 300, targetPortalId: 'p2' },
+            { id: 'p2', x: 700, y: 200, targetPortalId: 'p1' },
+            // TR -> BL (Protected by G1)
+            { id: 'p3', x: 800, y: 400, targetPortalId: 'p4', color: 'blue' }, // Exit from TR
+            { id: 'p4', x: 200, y: 600, targetPortalId: 'p3', color: 'blue' }, // Enter BL
+            // BL -> BR (Protected by G2)
+            { id: 'p5', x: 300, y: 800, targetPortalId: 'p6', color: 'blue' }, // Exit from BL
+            { id: 'p6', x: 700, y: 700, targetPortalId: 'p5', color: 'blue' }, // Enter BR
         ],
-        buttons: [
-            { x: 200, y: 800, targetGateId: 'g1' }, // Bottom Left area opens top
-            { x: 800, y: 200, targetGateId: 'g2' }, // Top Right area opens bottom
-        ]
+        // gates: [
+        //     { id: 'g1', x: 775, y: 375, w: 50, h: 50 }, // Blocks p3 (TR)
+        //     { id: 'g2', x: 275, y: 775, w: 50, h: 50 }, // Blocks p5 (BL)
+        // ],
+        // buttons: [
+        //     { x: 850, y: 100, targetGateId: 'g1', timer: 7 }, // Button in TR (opens path to BL)
+        //     { x: 100, y: 850, targetGateId: 'g2', timer: 7 }, // Button in BL (opens path to BR)
+        // ]
     },
     // 28. Button Maze
     {
         id: 28,
         theme: 'castle',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 100 },
+        start: { x: 100, y: 900 },
+        goal: { x: 100, y: 100 },
         timeLimit: 120,
         walls: [
             ...BOUNDARIES,
-            { x: 0, y: 250, w: 800, h: 50 },
-            { x: 200, y: 500, w: 800, h: 50 },
-            { x: 0, y: 750, w: 800, h: 50 },
+            { x: 0, y: 250, w: 880, h: 50 },
+            { x: 120, y: 500, w: 880, h: 50 },
+            { x: 0, y: 750, w: 870, h: 50 },
         ],
-        gates: [
-            { id: 'g1', x: 800, y: 250, w: 200, h: 50 },
-            { id: 'g2', x: 0, y: 500, w: 200, h: 50 },
-            { id: 'g3', x: 800, y: 750, w: 200, h: 50 },
-        ],
-        buttons: [
-            { x: 100, y: 400, targetGateId: 'g1' },
-            { x: 900, y: 650, targetGateId: 'g2' },
-            { x: 100, y: 900, targetGateId: 'g3' },
-        ]
+        // gates: [
+        //     { id: 'g1', x: 800, y: 250, w: 200, h: 50 },
+        //     { id: 'g2', x: 0, y: 500, w: 200, h: 50 },
+        //     { id: 'g3', x: 800, y: 750, w: 200, h: 50 },
+        // ],
+        // buttons: [
+        //     { x: 100, y: 400, targetGateId: 'g1', timer: 12 },
+        //     { x: 900, y: 650, targetGateId: 'g2', timer: 12 },
+        //     { x: 100, y: 900, targetGateId: 'g3', timer: 12 },
+        // ]
     },
     // 29. Two Towers
     {
         id: 29,
         theme: 'castle',
         start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
+        goal: { x: 900, y: 900 },
         timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 0, w: 100, h: 800 },
-            { x: 700, y: 0, w: 100, h: 800 },
+            { x: 200, y: 120, w: 100, h: 750 },
+            { x: 700, y: 130, w: 100, h: 770 },
         ],
         gates: [
-            { id: 'g1', x: 200, y: 400, w: 100, h: 50 }, // Left Tower Gate
-            { id: 'g2', x: 700, y: 400, w: 100, h: 50 }, // Right Tower Gate
+            { id: 'g1', x: 200, y: 400, w: 600, h: 50 }, // Left Tower Gate
+            // { id: 'g2', x: 700, y: 400, w: 100, h: 50 }, // Right Tower Gate
         ],
-        buttons: [
-            { x: 100, y: 500, targetGateId: 'g2' }, // Left btn opens right
-            { x: 900, y: 500, targetGateId: 'g1' }, // Right btn opens left
-        ]
+        // buttons: [
+        //     { x: 100, y: 500, targetGateId: 'g2', timer: 5 }, // Left btn opens right
+        //     { x: 900, y: 500, targetGateId: 'g1', timer: 5 }, // Right btn opens left
+        // ]
     },
     // 30. The Gauntlet
     {
         id: 30,
         theme: 'castle',
         start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 150,
+        goal: { x: 900, y: 100 },
+        timeLimit: 120,
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 100, w: 50, h: 800 },
-            { x: 400, y: 100, w: 50, h: 800 },
-            { x: 600, y: 100, w: 50, h: 800 },
-            { x: 800, y: 100, w: 50, h: 800 },
+            // Wall 1 (x=200): Gap Top (150-250)
+            { x: 200, y: 100, w: 50, h: 50 },
+            { x: 200, y: 250, w: 50, h: 650 },
+            // Wall 2 (x=400): Gap Bottom (750-850)
+            { x: 400, y: 100, w: 50, h: 650 },
+            { x: 400, y: 850, w: 50, h: 50 },
+            // Wall 3 (x=600): Gap Top (150-250)
+            { x: 600, y: 100, w: 50, h: 50 },
+            { x: 600, y: 250, w: 50, h: 650 },
+            // Wall 4 (x=800): Gap Bottom (750-850)
+            { x: 800, y: 100, w: 50, h: 650 },
+            { x: 800, y: 850, w: 50, h: 50 },
         ],
-        gates: [
-            { id: 'g1', x: 200, y: 450, w: 50, h: 100 },
-            { id: 'g2', x: 400, y: 450, w: 50, h: 100 },
-            { id: 'g3', x: 600, y: 450, w: 50, h: 100 },
-            { id: 'g4', x: 800, y: 450, w: 50, h: 100 },
-        ],
-        buttons: [
-            { x: 150, y: 100, targetGateId: 'g1' },
-            { x: 350, y: 900, targetGateId: 'g2' },
-            { x: 550, y: 100, targetGateId: 'g3' },
-            { x: 750, y: 900, targetGateId: 'g4' },
-        ]
+        // gates: [
+        //     { id: 'g1', x: 200, y: 150, w: 50, h: 100 },
+        //     { id: 'g2', x: 400, y: 750, w: 50, h: 100 },
+        //     { id: 'g3', x: 600, y: 150, w: 50, h: 100 },
+        //     { id: 'g4', x: 800, y: 750, w: 50, h: 100 },
+        // ],
+        // buttons: [
+        //     { x: 150, y: 100, targetGateId: 'g1', timer: 6 },
+        //     { x: 350, y: 900, targetGateId: 'g2', timer: 6 },
+        //     { x: 550, y: 100, targetGateId: 'g3', timer: 6 },
+        //     { x: 750, y: 900, targetGateId: 'g4', timer: 6 },
+        // ],
+        // movingWalls: [
+        //     { id: 'm1', x: 300, y: 0, w: 50, h: 1000, duration: 3000, path: [{ x: 300, y: 0 }, { x: 350, y: 0 }] },
+        //     { id: 'm2', x: 500, y: 0, w: 50, h: 1000, duration: 3000, path: [{ x: 500, y: 0 }, { x: 550, y: 0 }] },
+        //     { id: 'm3', x: 700, y: 0, w: 50, h: 1000, duration: 3000, path: [{ x: 700, y: 0 }, { x: 750, y: 0 }] },
+
+        // ]
     },
-    // 31. Time Check
+    // 31. Time Check (Messy Version)
     {
         id: 31,
         theme: 'castle',
         start: { x: 100, y: 100 },
         goal: { x: 900, y: 900 },
         timeLimit: 40, // FAST
-        walls: BOUNDARIES,
+        walls: [
+            ...BOUNDARIES,
+            // Messy Debris (Phase 1)
+            { x: 220, y: 180, w: 40, h: 40 },
+            { x: 350, y: 120, w: 30, h: 30 },
+            { x: 150, y: 650, w: 50, h: 20 },
+            { x: 420, y: 320, w: 40, h: 40 },
+            { x: 680, y: 580, w: 30, h: 30 },
+            { x: 750, y: 250, w: 40, h: 40 },
+            { x: 820, y: 450, w: 20, h: 50 },
+            { x: 380, y: 820, w: 40, h: 40 },
+            { x: 550, y: 280, w: 30, h: 30 },
+            { x: 620, y: 750, w: 40, h: 40 },
+            { x: 180, y: 850, w: 30, h: 30 },
+            { x: 850, y: 200, w: 40, h: 40 },
+            { x: 480, y: 600, w: 25, h: 25 },
+            { x: 250, y: 450, w: 35, h: 35 },
+            { x: 700, y: 800, w: 45, h: 15 },
+            // Messy Debris (Phase 2 - x2 MESSY!)
+            { x: 120, y: 300, w: 30, h: 30 },
+            { x: 900, y: 600, w: 30, h: 30 },
+            { x: 300, y: 700, w: 25, h: 25 },
+            { x: 600, y: 150, w: 35, h: 35 },
+            { x: 450, y: 850, w: 20, h: 20 },
+            { x: 780, y: 350, w: 30, h: 30 },
+            { x: 150, y: 400, w: 25, h: 50 },
+            { x: 550, y: 650, w: 40, h: 20 },
+            { x: 880, y: 800, w: 30, h: 30 },
+            { x: 280, y: 150, w: 30, h: 30 },
+            { x: 650, y: 450, w: 25, h: 25 },
+            { x: 400, y: 550, w: 20, h: 20 },
+            { x: 830, y: 700, w: 35, h: 35 },
+            { x: 230, y: 580, w: 25, h: 25 },
+            { x: 720, y: 120, w: 30, h: 30 },
+        ],
         gates: [
             { id: 'g1', x: 400, y: 400, w: 200, h: 200 }, // Big box
         ],
         buttons: [
-            { x: 800, y: 100, targetGateId: 'g1' }
+            { x: 800, y: 100, targetGateId: 'g1', timer: 10 }
+        ],
+        movingWalls: [
+            { id: 'm1', x: 300, y: 0, w: 50, h: 1000, duration: 2500, path: [{ x: 300, y: 0 }, { x: 500, y: 0 }] },
+            { id: 'm2', x: 500, y: 0, w: 50, h: 1000, duration: 2500, path: [{ x: 500, y: 0 }, { x: 300, y: 0 }] }
+        ],
+        collectibles: [
+            // Scattered loot (Phase 1)
+            { x: 250, y: 250, type: 'gem' },
+            { x: 750, y: 750, type: 'gem' },
+            { x: 200, y: 800, type: 'coin' },
+            { x: 800, y: 200, type: 'coin' },
+            { x: 500, y: 500, type: 'heart' },
+            { x: 350, y: 600, type: 'gem' },
+            { x: 650, y: 300, type: 'gem' },
+            // Scattered loot (Phase 2 - x2 MESSY!)
+            { x: 150, y: 350, type: 'gem' },
+            { x: 850, y: 550, type: 'gem' },
+            { x: 450, y: 150, type: 'coin' },
+            { x: 600, y: 850, type: 'coin' },
+            { x: 350, y: 450, type: 'gem' },
+            { x: 700, y: 650, type: 'gem' },
+            { x: 520, y: 720, type: 'gem' },
         ]
     },
     // 32. Four Corners
@@ -707,22 +869,34 @@ export const LEVELS: LevelData[] = [
         id: 32,
         theme: 'castle',
         start: { x: 500, y: 500 },
-        goal: { x: 950, y: 500 }, // Edge
         timeLimit: 120,
         walls: [
             ...BOUNDARIES,
-            { x: 450, y: 0, w: 100, h: 1000 },
-            { x: 0, y: 450, w: 1000, h: 100 },
+            // Central "+", but retracted to leave 4 gap corners
+            { x: 450, y: 0, w: 100, h: 400 }, // Top
+            { x: 450, y: 600, w: 100, h: 400 }, // Bottom
+            { x: 0, y: 450, w: 400, h: 100 }, // Left
+            { x: 600, y: 450, w: 400, h: 100 }, // Right
         ],
-        gates: [
-            { id: 'g1', x: 550, y: 450, w: 50, h: 100 }, // Exit right
+        // gates: [
+        //     // Block TR (Top-Right)
+        //     { id: 'g1', x: 500, y: 350, w: 100, h: 100 },
+
+        //     // Block BL (Bottom-Left)
+        //     { id: 'g2', x: 350, y: 500, w: 100, h: 100 },
+
+        //     // Block BR (Bottom-Right)
+        //     { id: 'g3', x: 500, y: 500, w: 150, h: 150 },
+        // ],
+        // buttons: [
+        //     { x: 100, y: 100, targetGateId: 'g1', timer: 8 }, // TL (Open) -> Opens TR
+        //     { x: 900, y: 100, targetGateId: 'g2', timer: 8 }, // TR (Gated) -> Opens BL
+        //     { x: 100, y: 900, targetGateId: 'g3', timer: 8 }, // BL (Gated) -> Opens BR
+        // ],
+        movingWalls: [
+            { id: 'm1', x: 450, y: 400, w: 100, h: 200, duration: 2000, path: [{ x: 450, y: 400 }, { x: 450, y: 600 }] } // Central block moving vertically
         ],
-        buttons: [
-            // Need to visit all 3 other corners linearly?
-            { x: 100, y: 100, targetGateId: 'g1' }, // Changed to all open result
-            { x: 100, y: 900, targetGateId: 'g1' },
-            { x: 900, y: 100, targetGateId: 'g1' }, // Only this one matters
-        ]
+        goal: { x: 850, y: 850 } // BR (Gated)
     },
     // 33. Snake Gates
     {
@@ -743,73 +917,164 @@ export const LEVELS: LevelData[] = [
             { id: 'g2', x: 100, y: 600, w: 100, h: 50 },
         ],
         buttons: [
-            { x: 500, y: 100, targetGateId: 'g1' },
-            { x: 500, y: 450, targetGateId: 'g2' },
+            { x: 500, y: 100, targetGateId: 'g1', timer: 8 },
+            { x: 500, y: 450, targetGateId: 'g2', timer: 8 },
         ],
         portals: [
             { id: 'p1', x: 900, y: 100, color: 'blue', targetPortalId: 'p2' },
             { id: 'p2', x: 500, y: 800, color: 'orange', targetPortalId: 'p1' }
         ]
     },
-    // 34. The Trap
+    // 34. The Double Trap
     {
         id: 34,
         theme: 'castle',
         start: { x: 100, y: 500 },
         goal: { x: 900, y: 500 },
-        timeLimit: 60,
+        timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            { x: 400, y: 0, w: 50, h: 1000 },
+            // Wall 1 (Left): Gap at y=200
+            { x: 350, y: 0, w: 50, h: 200 },
+            { x: 350, y: 300, w: 50, h: 700 }, // Gap 200-300
+
+            // Wall 2 (Right): Gap at y=700
+            { x: 650, y: 0, w: 50, h: 700 },
+            { x: 650, y: 800, w: 50, h: 200 }, // Gap 700-800
         ],
         gates: [
-            { id: 'g1', x: 400, y: 450, w: 50, h: 100 },
+            { id: 'g1', x: 350, y: 200, w: 50, h: 100 }, // Plug Wall 1
+            { id: 'g2', x: 650, y: 700, w: 50, h: 100 }, // Plug Wall 2
         ],
         buttons: [
-            { x: 300, y: 500, targetGateId: 'g1' },
+            { x: 100, y: 100, targetGateId: 'g1' }, // Top Left Corner
+            { x: 500, y: 500, targetGateId: 'g2' }, // Dangerous Center
+        ],
+        enemies: [
+            // Knight patrolling the center corridor (between walls)
+            {
+                id: 'e1', x: 500, y: 100, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 500, y: 100 }, { x: 500, y: 900 }],
+                duration: 2000
+            },
+            // Knight guarding the final stretch
+            {
+                id: 'e2', x: 800, y: 500, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 800, y: 200 }, { x: 800, y: 800 }],
+                duration: 2500
+            }
         ]
     },
-    // 35. Back and Forth
+    // 35. Back and Forth Gauntlet
+    // 35. Back and Forth Gauntlet
     {
         id: 35,
         theme: 'castle',
         start: { x: 500, y: 900 },
         goal: { x: 500, y: 100 },
-        timeLimit: 120,
+        timeLimit: 120, // Strict for the distance
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 300, w: 600, h: 50 },
-            { x: 200, y: 700, w: 600, h: 50 },
+            // Wall 1 (Bottom): Gap 150px at Right (0-850)
+            { x: 0, y: 700, w: 850, h: 50 },
+
+            // Wall 2 (Top): Gap 150px at Left (150-1000)
+            { x: 150, y: 350, w: 850, h: 50 },
+
+            // Two Vertical Walls at Center (Obstacles) with 150px Gaps
+            // Left Center: Gap Bottom (y=550-700) -> 150px gap
+            { x: 400, y: 350, w: 50, h: 200 },
+
+            // Right Center: Gap Top (y=350-500) -> 150px gap
+            { x: 600, y: 500, w: 50, h: 200 },
         ],
         gates: [
-            { id: 'g1', x: 200, y: 300, w: 50, h: 50 }, // Top Left Gap
-            { id: 'g2', x: 750, y: 700, w: 50, h: 50 }, // Bottom Right Gap
+            { id: 'g1', x: 850, y: 700, w: 150, h: 50 }, // Right Gap (Bottom) - WIDER
+            { id: 'g2', x: 0, y: 350, w: 150, h: 50 }, // Left Gap (Top) - WIDER
         ],
         buttons: [
-            { x: 800, y: 800, targetGateId: 'g1' },
-            { x: 200, y: 500, targetGateId: 'g2' },
+            { x: 100, y: 850, targetGateId: 'g1', timer: 10 }, // Bottom Left (Opens Right)
+            { x: 900, y: 500, targetGateId: 'g2', timer: 8 }, // Mid Right (Opens Left)
+        ],
+        enemies: [
+            // Knight 1: Bottom Corridor (Patrols Left-Right)
+            {
+                id: 'e1', x: 200, y: 800, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 200, y: 800 }, { x: 800, y: 800 }],
+                duration: 3000
+            },
+            // Knight 2: Middle Corridor (Patrols around center walls)
+            {
+                id: 'e2', x: 500, y: 500, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 500, y: 400 }, { x: 500, y: 650 }], // Vertical patrol in center
+                duration: 2000
+            },
+            // Knight 3: Top Corridor (Patrols Goal Area)
+            {
+                id: 'e3', x: 400, y: 200, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 400, y: 200 }, { x: 600, y: 200 }], // Tighter guard
+                duration: 2000
+            }
         ]
     },
-    // 36. Open Field
+    // 36. The Obstacle Course
     {
         id: 36,
         theme: 'castle',
         start: { x: 100, y: 100 },
         goal: { x: 900, y: 900 },
         timeLimit: 90,
-        walls: BOUNDARIES,
+        walls: [
+            ...BOUNDARIES,
+            // Internal Grid of Pillars
+            { x: 250, y: 200, w: 100, h: 100 }, // Top Left
+            { x: 650, y: 200, w: 100, h: 100 }, // Top Right
+            { x: 450, y: 500, w: 100, h: 100 }, // Center
+            { x: 250, y: 800, w: 100, h: 100 }, // Bottom Left
+            { x: 650, y: 800, w: 100, h: 100 }, // Bottom Right
+
+            // Small Walls (Debris)
+            { x: 150, y: 500, w: 50, h: 50 }, // Left Flank
+            { x: 800, y: 500, w: 50, h: 50 }, // Right Flank
+            { x: 475, y: 350, w: 50, h: 50 }, // Top Mid Debris
+            { x: 475, y: 650, w: 50, h: 50 }, // Bottom Mid Debris
+
+            // Extra Density
+            { x: 300, y: 50, w: 50, h: 50 }, // Top Edge Left
+            { x: 700, y: 50, w: 50, h: 50 }, // Top Edge Right
+            { x: 50, y: 300, w: 50, h: 50 }, // Left Edge
+            { x: 900, y: 300, w: 50, h: 50 }, // Right Edge
+            { x: 350, y: 550, w: 50, h: 50 }, // Inner Left
+            { x: 650, y: 550, w: 50, h: 50 }, // Inner Right
+        ],
         gates: [
-            // Actually let's block the goal corner
-            { id: 'g_main', x: 800, y: 800, w: 200, h: 50 },
-            { id: 'g_main2', x: 800, y: 800, w: 50, h: 200 },
+            { id: 'g_main', x: 800, y: 800, w: 100, h: 50 }, // Blocks Goal
         ],
         buttons: [
-            { x: 200, y: 200, targetGateId: 'g_main' },
-            { x: 500, y: 500, targetGateId: 'g_main' },
-            { x: 800, y: 800, targetGateId: 'g_main2' },
+            { x: 500, y: 200, targetGateId: 'g_main', timer: 5 }, // Top Center (Between Top Pillars)
+        ],
+        enemies: [
+            // Horizontal Patrols
+            {
+                id: 'e1', x: 350, y: 350, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 350, y: 350 }, { x: 650, y: 350 }],
+                duration: 2500
+            },
+            {
+                id: 'e2', x: 350, y: 650, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 650, y: 650 }, { x: 350, y: 650 }],
+                duration: 2500
+            }
         ]
     },
-    // 37. Triple Lock
+    // 37. The Hollow Fortress
     {
         id: 37,
         theme: 'castle',
@@ -818,36 +1083,110 @@ export const LEVELS: LevelData[] = [
         timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            { x: 300, y: 300, w: 400, h: 400 },
+            // Fortress Walls (Creating a 400x400 room from 300,300 to 700,700)
+            { x: 300, y: 300, w: 400, h: 50 }, // Top Wall
+            { x: 300, y: 650, w: 150, h: 50 }, // Bottom Left
+            { x: 550, y: 650, w: 150, h: 50 }, // Bottom Right
+            { x: 300, y: 350, w: 50, h: 300 }, // Left Wall
+            { x: 650, y: 350, w: 50, h: 300 }, // Right Wall
+
+            // Outer Satellite Walls (Hardening)
+            { x: 150, y: 150, w: 100, h: 100 }, // Top Left Block
+            { x: 750, y: 150, w: 100, h: 100 }, // Top Right Block
+            { x: 150, y: 750, w: 100, h: 100 }, // Bottom Left Block
+            { x: 750, y: 750, w: 100, h: 100 }, // Bottom Right Block
+
+            // 10 Extra Walls (CHAOS Mode)
+            { x: 400, y: 100, w: 200, h: 50 }, // Top Barrier (Long Horizontal)
+            { x: 400, y: 800, w: 200, h: 50 }, // Bottom Barrier (Long Horizontal) - Moved Up
+            { x: 50, y: 400, w: 50, h: 200 }, // Left Barrier (Tall Vertical)
+            { x: 900, y: 400, w: 50, h: 200 }, // Right Barrier (Tall Vertical)
+            { x: 250, y: 250, w: 50, h: 50 }, // Corner Debris TL
+            { x: 700, y: 250, w: 50, h: 50 }, // Corner Debris TR
+            { x: 250, y: 700, w: 50, h: 50 }, // Corner Debris BL
+            { x: 700, y: 700, w: 50, h: 50 }, // Corner Debris BR
+            { x: 500, y: 200, w: 50, h: 50 }, // Top Center Dot
+            { x: 200, y: 500, w: 100, h: 50 }, // Side Block Left
         ],
         gates: [
-            { id: 'g1', x: 300, y: 650, w: 400, h: 50 },
+            { id: 'g_fort', x: 450, y: 650, w: 100, h: 50 }, // Fortress Gate (Bottom Center)
         ],
         buttons: [
-            { x: 100, y: 100, targetGateId: 'g1' },
-            // Just one button needed really
+            { x: 100, y: 100, targetGateId: 'g_fort' }, // Far Top-Left Corner
+        ],
+        enemies: [
+            // Inner Guard (Patrols inside the fortress)
+            {
+                id: 'e1', x: 400, y: 400, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 380, y: 380 }, { x: 620, y: 580 }], // Diagonal patrol inside
+                duration: 2000
+            },
+            // Outer Guard
+            {
+                id: 'e2', x: 500, y: 700, w: 40, h: 40,
+                type: 'patrol',
+                path: [{ x: 200, y: 700 }, { x: 800, y: 700 }], // Patrols below fortress
+                duration: 3000
+            }
+        ],
+        collectibles: [
+            { x: 100, y: 500, type: 'coin' }, // Left Flank
+            { x: 900, y: 500, type: 'coin' }, // Right Flank
+            { x: 200, y: 200, type: 'gem' }, // Top Left (Near Key)
+            { x: 800, y: 200, type: 'gem' }, // Top Right
+            { x: 500, y: 850, type: 'gem' }, // Bottom Center (Start Area)
+            { x: 500, y: 300, type: 'heart' }, // Top Center (Dangerous Spot)
         ]
     },
-    // 38. The Spiral Gate
+    // 38. The Rounded Cross (Redesign: Timed Challenge)
     {
         id: 38,
         theme: 'castle',
-        start: { x: 100, y: 100 },
+        start: { x: 500, y: 900 },
         goal: { x: 500, y: 500 },
-        timeLimit: 150,
+        timeLimit: 120,
         walls: [
-            // Spiral walls
             ...BOUNDARIES,
-            { x: 200, y: 200, w: 600, h: 50 },
-            { x: 800, y: 200, w: 50, h: 600 },
-            { x: 200, y: 800, w: 650, h: 50 },
-            { x: 200, y: 400, w: 50, h: 400 },
+            // Top-Left Quadrant
+            { x: 0, y: 0, w: 450, h: 250 },
+            { x: 0, y: 250, w: 350, h: 100 },
+            { x: 0, y: 350, w: 250, h: 100 },
+            // Top-Right Quadrant
+            { x: 550, y: 0, w: 450, h: 250 },
+            { x: 650, y: 250, w: 350, h: 100 },
+            { x: 750, y: 350, w: 250, h: 100 },
+            // Bottom-Left Quadrant
+            { x: 0, y: 550, w: 250, h: 100 },
+            { x: 0, y: 650, w: 350, h: 100 },
+            { x: 0, y: 750, w: 450, h: 250 },
+            // Bottom-Right Quadrant
+            { x: 750, y: 550, w: 250, h: 100 },
+            { x: 650, y: 650, w: 350, h: 100 },
+            { x: 550, y: 750, w: 450, h: 250 },
         ],
         gates: [
-            { id: 'g1', x: 400, y: 400, w: 300, h: 50 }, // Inner
+            { id: 'g_main', x: 450, y: 600, w: 100, h: 50 }, // Blocks Bottom Approach
         ],
         buttons: [
-            { x: 800, y: 800, targetGateId: 'g1' }, // Outer corner
+            { x: 100, y: 500, targetGateId: 'g_main', timer: 7 }, // Far Left
+            { x: 900, y: 500, targetGateId: 'g_main', timer: 7 }, // Far Right (Backup)
+        ],
+        movingWalls: [
+            // Sweeping Cross Attacks
+            { id: 'm1', x: 0, y: 0, w: 50, h: 1000, duration: 4000, path: [{ x: 950, y: 0 }] }, // Full Height Sweep Left-Right
+            { id: 'm2', x: 0, y: 475, w: 1000, h: 50, duration: 3500, path: [{ x: 0, y: 200 }, { x: 0, y: 800 }] } // Full Width Sweep Up-Down
+        ],
+        enemies: [],
+        collectibles: [
+            { x: 50, y: 50, type: 'coin' }, // Deep Corner TL
+            { x: 950, y: 50, type: 'coin' }, // Deep Corner TR
+            { x: 50, y: 950, type: 'coin' }, // Deep Corner BL
+            { x: 950, y: 950, type: 'coin' }, // Deep Corner BR
+            { x: 500, y: 100, type: 'gem' }, // Top Gap
+            { x: 100, y: 500, type: 'gem' }, // Left Gap
+            { x: 900, y: 500, type: 'gem' }, // Right Gap
+            { x: 500, y: 950, type: 'heart' }, // Start Area
         ]
     },
     // 39. Split Decision
@@ -889,183 +1228,402 @@ export const LEVELS: LevelData[] = [
             { id: 'g2', x: 600, y: 500, w: 50, h: 100 },
         ],
         buttons: [
-            { x: 300, y: 400, targetGateId: 'g1' },
-            { x: 700, y: 600, targetGateId: 'g2' },
+            { x: 300, y: 400, targetGateId: 'g1', timer: 6 },
+            { x: 700, y: 600, targetGateId: 'g2', timer: 6 },
         ]
     },
     // --- WORLD 3: The Cloudy Sky ---
-    // 41. Up in the Air
+    // 41. Cloud Steps (Redesign)
     {
         id: 41,
         theme: 'sky',
         start: { x: 500, y: 900 },
         goal: { x: 500, y: 100 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingWalls: [
-            {
-                id: 'm1', x: 200, y: 400, w: 100, h: 60,
-                duration: 3000,
-                path: [{ x: 700, y: 400 }]
-            }
-        ]
+        timeLimit: 90,
+        walls: [
+            ...BOUNDARIES,
+            // Staggered Platforms
+            { x: 200, y: 750, w: 600, h: 50 }, // Platform 1 (Gap Left/Right)
+            { x: 0, y: 550, w: 400, h: 50 }, // Platform 2 (Gap Center)
+            { x: 600, y: 550, w: 400, h: 50 },
+            { x: 200, y: 350, w: 600, h: 50 }, // Platform 3 (Gap Left/Right)
+        ],
+        enemies: [
+            { id: 'e1', x: 200, y: 650, w: 40, h: 40, type: 'patrol', path: [{ x: 100, y: 650 }, { x: 900, y: 650 }], duration: 5000 },
+            { id: 'e2', x: 200, y: 450, w: 40, h: 40, type: 'patrol', path: [{ x: 900, y: 450 }, { x: 100, y: 450 }], duration: 5000 },
+        ],
+        portals: [
+            { id: 'p1', x: 100, y: 840, targetPortalId: 'p2', color: 'orange' },
+            { id: 'p2', x: 850, y: 845, targetPortalId: 'p1', color: 'orange' },
+        ],
+        movingWalls: []
     },
-    // 42. Cloud Traffic
+    // 42. The Intersection (Redesign)
     {
         id: 42,
         theme: 'sky',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
+        start: { x: 100, y: 900 },
+        goal: { x: 900, y: 100 },
+        timeLimit: 80,
+        walls: [
+            ...BOUNDARIES,
+            // Central Cross Hub
+            { x: 450, y: 200, w: 100, h: 200 }, // Top Hub
+            { x: 450, y: 600, w: 100, h: 200 }, // Bottom Hub
+            { x: 150, y: 450, w: 350, h: 100 }, // Left Hub
+            { x: 600, y: 450, w: 250, h: 100 }, // Right Hub
+        ],
         movingWalls: [
-            { id: 'm1', x: 400, y: 100, w: 60, h: 60, duration: 2000, path: [{ x: 400, y: 800 }] },
-            { id: 'm2', x: 500, y: 800, w: 60, h: 60, duration: 2000, path: [{ x: 500, y: 100 }] },
+            // Traffic
+            { id: 'm1', x: 100, y: 100, w: 60, h: 60, duration: 2500, path: [{ x: 100, y: 800 }] },
+            { id: 'm2', x: 840, y: 800, w: 60, h: 60, duration: 2500, path: [{ x: 840, y: 100 }] },
+            { id: 'm3', x: 100, y: 300, w: 60, h: 60, duration: 3000, path: [{ x: 800, y: 300 }] },
+            { id: 'm4', x: 800, y: 700, w: 60, h: 60, duration: 3000, path: [{ x: 100, y: 700 }] },
+        ],
+        enemies: [
+            // Corner Guards
+            { id: 'e1', x: 100, y: 200, w: 40, h: 40, type: 'patrol', path: [{ x: 100, y: 200 }, { x: 300, y: 200 }], duration: 2000 },
+            { id: 'e2', x: 700, y: 800, w: 40, h: 40, type: 'patrol', path: [{ x: 700, y: 800 }, { x: 900, y: 800 }], duration: 2000 },
+        ],
+        portals: [
+            { id: 'p1', x: 85, y: 500, targetPortalId: 'p2', color: 'blue' }, // Left to Right Jump
+            { id: 'p2', x: 950, y: 500, targetPortalId: 'p1', color: 'blue' }
         ]
     },
-    // 43. Windy Path
+    // 43. The Wind Tunnel (Redesign)
     {
         id: 43,
         theme: 'sky',
         start: { x: 100, y: 100 },
         goal: { x: 900, y: 900 },
-        timeLimit: 80,
-        walls: BOUNDARIES,
+        timeLimit: 120,
+        walls: [
+            ...BOUNDARIES,
+            // Snake Corridor Walls
+            { x: 200, y: 0, w: 50, h: 700 }, // Wall 1 Down
+            { x: 400, y: 300, w: 50, h: 700 }, // Wall 2 Up
+            { x: 600, y: 0, w: 50, h: 700 }, // Wall 3 Down
+            { x: 800, y: 300, w: 50, h: 700 }, // Wall 4 Up
+        ],
         movingWalls: [
-            { id: 'm1', x: 100, y: 300, w: 200, h: 50, duration: 4000, path: [{ x: 700, y: 300 }] },
-            { id: 'm2', x: 700, y: 600, w: 200, h: 50, duration: 4000, path: [{ x: 100, y: 600 }] },
+            // "Wind" Pushers (Vertical Patrols in the lanes)
+            { id: 'm1', x: 100, y: 200, w: 80, h: 50, duration: 2000, path: [{ x: 100, y: 800 }] },
+            { id: 'm2', x: 300, y: 800, w: 80, h: 50, duration: 2000, path: [{ x: 300, y: 200 }] },
+            { id: 'm3', x: 500, y: 200, w: 80, h: 50, duration: 2000, path: [{ x: 500, y: 800 }] },
+            { id: 'm4', x: 700, y: 800, w: 80, h: 50, duration: 2000, path: [{ x: 700, y: 200 }] },
+        ],
+        enemies: [],
+        portals: [
+            { id: 'p1', x: 815, y: 300, targetPortalId: 'p2', color: 'orange' }, // Lane Hopper
+            { id: 'p2', x: 100, y: 750, targetPortalId: 'p1', color: 'orange' }
         ]
     },
-    // 44. The Squeeze
+    // 44. The Piston Press (Redesign)
     {
         id: 44,
         theme: 'sky',
         start: { x: 500, y: 900 },
         goal: { x: 500, y: 100 },
-        timeLimit: 100,
+        timeLimit: 60,
         walls: [
             ...BOUNDARIES,
-            { x: 300, y: 0, w: 50, h: 1000 },
-            { x: 650, y: 0, w: 50, h: 1000 },
+            // Funnel walls
+            { x: 200, y: 0, w: 100, h: 1000 },
+            { x: 700, y: 0, w: 100, h: 1000 },
+            { x: 450, y: 450, w: 200, h: 100 }, // Center Safe Block
         ],
         movingWalls: [
-            { id: 'm1', x: 350, y: 400, w: 100, h: 100, duration: 1500, path: [{ x: 550, y: 400 }] },
-            { id: 'm2', x: 550, y: 600, w: 100, h: 100, duration: 1500, path: [{ x: 350, y: 600 }] },
+            // Crushing Pistons
+            { id: 'm1', x: 300, y: 0, w: 150, h: 550, duration: 3500, path: [{ x: 300, y: 450 }] }, // Top Piston
+            // { id: 'm2', x: 550, y: 0, w: 150, h: 400, duration: 3500, path: [{ x: 550, y: 750 }] }, // Bottom Piston
+        ],
+        // enemies: [
+        //     { id: 'e1', x: 500, y: 500, w: 30, h: 30, type: 'patrol', path: [{ x: 450, y: 500 }, { x: 550, y: 500 }], duration: 8000 }
+        // ],
+        portals: [
+            { id: 'p1', x: 390, y: 450, targetPortalId: 'p2', color: 'blue' }, // Emergency Escape
+            { id: 'p2', x: 100, y: 150, targetPortalId: 'p', color: 'blue' }
         ]
     },
-    // 45. Cloud Grid
+    // 45. Dense Mists (Redesign)
     {
         id: 45,
         theme: 'sky',
         start: { x: 100, y: 100 },
         goal: { x: 900, y: 900 },
         timeLimit: 120,
-        walls: BOUNDARIES,
+        walls: [
+            ...BOUNDARIES,
+            // Grid Layout (Checkerboard)
+            { x: 300, y: 300, w: 100, h: 100 },
+            { x: 600, y: 300, w: 100, h: 100 },
+            { x: 300, y: 600, w: 100, h: 100 },
+            { x: 600, y: 600, w: 100, h: 100 },
+            { x: 450, y: 450, w: 100, h: 100 }, // Center Block
+        ],
         movingWalls: [
-            { id: 'm1', x: 300, y: 200, w: 50, h: 50, duration: 2000, path: [{ x: 300, y: 800 }] },
-            { id: 'm2', x: 500, y: 800, w: 50, h: 50, duration: 2000, path: [{ x: 500, y: 200 }] },
-            { id: 'm3', x: 700, y: 200, w: 50, h: 50, duration: 2000, path: [{ x: 700, y: 800 }] },
-            { id: 'h1', x: 200, y: 500, w: 50, h: 50, duration: 3000, path: [{ x: 800, y: 500 }] },
+            // Sliding Mist Blocks
+            { id: 'm1', x: 500, y: 200, w: 100, h: 50, duration: 3000, path: [{ x: 800, y: 200 }] },
+            { id: 'm2', x: 500, y: 800, w: 100, h: 50, duration: 3000, path: [{ x: 200, y: 800 }] },
+        ],
+        // enemies: [
+        //     // Grid Patrollers
+        //     { id: 'e1', x: 100, y: 450, w: 30, h: 30, type: 'patrol', path: [{ x: 900, y: 450 }], duration: 3000 },
+        //     { id: 'e2', x: 500, y: 100, w: 30, h: 30, type: 'patrol', path: [{ x: 500, y: 900 }], duration: 3000 }
+        // ],
+        portals: [
+            { id: 'p1', x: 200, y: 500, targetPortalId: 'p2', color: 'orange' }, // Jumps across grid
+            { id: 'p2', x: 800, y: 500, targetPortalId: 'p1', color: 'orange' }
         ]
     },
-    // 46. Storm Front
+    // 46. The Hurricane (Redesign)
     {
         id: 46,
         theme: 'sky',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
+        start: { x: 100, y: 900 },
+        goal: { x: 500, y: 500 }, // Center Eye
         timeLimit: 120,
-        walls: BOUNDARIES,
+        walls: [
+            ...BOUNDARIES,
+            // Spiral Static Walls
+            { x: 200, y: 200, w: 600, h: 50 }, // Top Bar
+            { x: 800, y: 200, w: 50, h: 600 }, // Right Bar
+            { x: 200, y: 800, w: 600, h: 50 }, // Bottom Bar
+            { x: 200, y: 350, w: 50, h: 450 }, // Left Bar (Gap at top)
+        ],
         movingWalls: [
-            { id: 'm1', x: 200, y: 300, w: 600, h: 50, duration: 4000, path: [{ x: 200, y: 700 }] },
-            { id: 'm2', x: 100, y: 500, w: 100, h: 100, duration: 2000, path: [{ x: 800, y: 500 }] },
+            // Rotating Winds (Simulated)
+            { id: 'm1', x: 300, y: 300, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 300 }] }, // Inner North
+            { id: 'm2', x: 600, y: 700, w: 100, h: 50, duration: 2000, path: [{ x: 300, y: 700 }] }, // Inner South
+        ],
+        enemies: [
+            { id: 'e1', x: 500, y: 500, w: 40, h: 40, type: 'patrol', path: [{ x: 400, y: 400 }, { x: 600, y: 600 }], duration: 1500 } // Eye Guard
+        ],
+        portals: [
+            { id: 'p1', x: 100, y: 100, targetPortalId: 'p2', color: 'blue' }, // Corner to corner
+            { id: 'p2', x: 900, y: 900, targetPortalId: 'p1', color: 'blue' }
         ]
     },
-    // 47. Diagonal Drifters
+    // 47. Crossfire (Redesign)
     {
         id: 47,
         theme: 'sky',
-        start: { x: 100, y: 900 },
-        goal: { x: 900, y: 100 },
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
         timeLimit: 100,
-        walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'm1', x: 200, y: 800, w: 50, h: 50, duration: 3000, path: [{ x: 800, y: 200 }] },
-            { id: 'm2', x: 800, y: 800, w: 50, h: 50, duration: 3000, path: [{ x: 200, y: 200 }] },
+        walls: [
+            ...BOUNDARIES,
+            // The X Divider
+            { x: 0, y: 0, w: 300, h: 300 }, // Top Left Corner
+            { x: 700, y: 0, w: 300, h: 300 }, // Top Right Corner
+            { x: 0, y: 700, w: 300, h: 300 }, // Bottom Left Corner
+            { x: 700, y: 700, w: 300, h: 300 }, // Bottom Right Corner
+        ],
+        movingWalls: [],
+        enemies: [
+            // Diagonal Patrollers crossing the central X
+            { id: 'e1', x: 300, y: 300, w: 30, h: 30, type: 'patrol', path: [{ x: 700, y: 700 }], duration: 2000 },
+            { id: 'e2', x: 700, y: 300, w: 30, h: 30, type: 'patrol', path: [{ x: 300, y: 700 }], duration: 2000 },
+        ],
+        portals: [
+            { id: 'p1', x: 150, y: 350, targetPortalId: 'p2', color: 'orange' }, // Side to Side
+            { id: 'p2', x: 850, y: 350, targetPortalId: 'p1', color: 'orange' }
         ]
     },
-    // 48. The Gauntlet
+    // 48. The Sky Fortress (Redesign)
     {
         id: 48,
         theme: 'sky',
-        start: { x: 500, y: 950 },
-        goal: { x: 500, y: 50 },
-        timeLimit: 150,
-        walls: [
-            ...BOUNDARIES,
-            { x: 300, y: 0, w: 50, h: 1000 },
-            { x: 650, y: 0, w: 50, h: 1000 },
-        ],
-        movingWalls: [
-            { id: 'mw1', x: 350, y: 200, w: 100, h: 50, duration: 1000, path: [{ x: 550, y: 200 }] },
-            { id: 'mw2', x: 550, y: 400, w: 100, h: 50, duration: 1000, path: [{ x: 350, y: 400 }] },
-            { id: 'mw3', x: 350, y: 600, w: 100, h: 50, duration: 1000, path: [{ x: 550, y: 600 }] },
-            { id: 'mw4', x: 550, y: 800, w: 100, h: 50, duration: 1000, path: [{ x: 350, y: 800 }] },
-        ]
-    },
-    // 49. Cloud Maze
-    {
-        id: 49,
-        theme: 'sky',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
+        start: { x: 500, y: 850 }, // Moved up from 950 (Boundary)
+        goal: { x: 500, y: 150 }, // Moved down from 50 (Boundary)
         timeLimit: 180,
         walls: [
             ...BOUNDARIES,
-            { x: 300, y: 300, w: 400, h: 400 },
+            // Fortress Outer Walls
+            { x: 100, y: 200, w: 350, h: 50 },
+            { x: 550, y: 200, w: 350, h: 50 },
+            // Inner Keep
+            { x: 300, y: 500, w: 400, h: 50 },
+            { x: 300, y: 500, w: 50, h: 200 },
+            { x: 650, y: 500, w: 50, h: 200 },
+        ],
+        gates: [
+            { id: 'g_main', x: 450, y: 200, w: 100, h: 50 }, // Main Entrance
+        ],
+        buttons: [
+            { x: 100, y: 100, targetGateId: 'g_main' }, // Top Left Tower
+            { x: 900, y: 100, targetGateId: 'g_main' }, // Top Right Tower
         ],
         movingWalls: [
-            { id: 'm1', x: 100, y: 500, w: 100, h: 100, duration: 4000, path: [{ x: 100, y: 100 }] },
-            { id: 'm2', x: 800, y: 100, w: 100, h: 100, duration: 4000, path: [{ x: 800, y: 500 }] },
-            { id: 'm3', x: 500, y: 100, w: 50, h: 100, duration: 2000, path: [{ x: 500, y: 250 }] },
-            { id: 'm4', x: 500, y: 800, w: 50, h: 100, duration: 2000, path: [{ x: 500, y: 750 }] },
+            // Gatekeepers
+            { id: 'mw1', x: 400, y: 300, w: 200, h: 50, duration: 2000, path: [{ x: 400, y: 400 }] }
+        ],
+        enemies: [
+            { id: 'e1', x: 100, y: 300, w: 40, h: 40, type: 'patrol', path: [{ x: 900, y: 300 }], duration: 3000 }, // Outer Patrol
+            { id: 'e2', x: 500, y: 600, w: 40, h: 40, type: 'patrol', path: [{ x: 350, y: 600 }, { x: 650, y: 600 }], duration: 1500 } // Inner Guard
+        ],
+        portals: [
+            { id: 'p1', x: 100, y: 900, targetPortalId: 'p2', color: 'blue' }, // Base to Tower Jump
+            { id: 'p2', x: 100, y: 150, targetPortalId: 'p1', color: 'blue' }, // Near Top Left Tower
+            { id: 'p3', x: 900, y: 900, targetPortalId: 'p4', color: 'orange' },
+            { id: 'p4', x: 900, y: 150, targetPortalId: 'p3', color: 'orange' } // Near Top Right Tower
         ]
     },
-    // 50. Nimbus King
+    // 49. The Hive (Master Difficulty)
+    {
+        id: 49,
+        theme: 'sky',
+        start: { x: 50, y: 50 },
+        goal: { x: 950, y: 950 },
+        timeLimit: 120,
+        walls: [
+            ...BOUNDARIES,
+            // Maze Structure
+            { x: 200, y: 0, w: 50, h: 400 },
+            { x: 400, y: 200, w: 50, h: 400 },
+            { x: 600, y: 0, w: 50, h: 400 },
+            { x: 800, y: 200, w: 50, h: 400 },
+            { x: 200, y: 600, w: 650, h: 50 }, // Bottom Horizontal
+        ],
+        enemies: [
+            // The Swarm
+            { id: 'bug1', x: 100, y: 200, w: 20, h: 20, type: 'bug', path: [{ x: 100, y: 500 }, { x: 300, y: 200 }], duration: 1500 },
+            { id: 'bug2', x: 300, y: 500, w: 20, h: 20, type: 'bug', path: [{ x: 500, y: 200 }, { x: 300, y: 500 }], duration: 1500 },
+            { id: 'bug3', x: 500, y: 200, w: 20, h: 20, type: 'bug', path: [{ x: 700, y: 500 }, { x: 500, y: 200 }], duration: 1500 },
+            { id: 'bug4', x: 700, y: 500, w: 20, h: 20, type: 'bug', path: [{ x: 900, y: 200 }, { x: 700, y: 500 }], duration: 1500 },
+            { id: 'bug5', x: 500, y: 800, w: 20, h: 20, type: 'bug', path: [{ x: 900, y: 800 }, { x: 100, y: 800 }], duration: 3000 }
+        ],
+        movingWalls: [],
+        portals: [
+            { id: 'p1', x: 50, y: 950, targetPortalId: 'p2', color: 'orange' },
+            { id: 'p2', x: 950, y: 50, targetPortalId: 'p1', color: 'orange' }
+        ]
+    },
+    // 50. Nimbus King (Boss Rework)
     {
         id: 50,
         theme: 'sky',
         start: { x: 500, y: 900 },
-        goal: { x: 500, y: 500 },
-        timeLimit: 200,
+        goal: { x: 500, y: 100 },
+        timeLimit: 180,
         walls: BOUNDARIES,
         movingWalls: [
-            { id: 'boss1', x: 100, y: 100, w: 200, h: 100, duration: 5000, path: [{ x: 700, y: 100 }] },
-            { id: 'boss2', x: 700, y: 800, w: 200, h: 100, duration: 5000, path: [{ x: 100, y: 800 }] },
+            // The Hands
+            { id: 'hand1', x: 0, y: 300, w: 300, h: 100, duration: 3000, path: [{ x: 200, y: 300 }] },
+            { id: 'hand2', x: 700, y: 600, w: 300, h: 100, duration: 3000, path: [{ x: 500, y: 600 }] },
+            // The Crushers
+            { id: 'crush1', x: 400, y: 0, w: 200, h: 200, duration: 4000, path: [{ x: 400, y: 400 }] }
+        ],
+        enemies: [
+            // Minions
+            { id: 'e1', x: 200, y: 200, w: 30, h: 30, type: 'bug', path: [{ x: 800, y: 800 }], duration: 4000 },
+            { id: 'e2', x: 800, y: 200, w: 30, h: 30, type: 'bug', path: [{ x: 200, y: 800 }], duration: 4000 }
         ]
     },
-    // 51. Fast Lane
+    // 51. Velocity (Master)
     {
-        id: 51, theme: 'sky', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [
-            { id: 'f1', x: 400, y: 100, w: 50, h: 50, duration: 500, path: [{ x: 400, y: 900 }] },
-            { id: 'f2', x: 600, y: 900, w: 50, h: 50, duration: 500, path: [{ x: 600, y: 100 }] },
+        id: 51,
+        theme: 'sky',
+        start: { x: 50, y: 500 },
+        goal: { x: 950, y: 500 },
+        timeLimit: 40,
+        walls: [
+            ...BOUNDARIES,
+            // The Tunnel
+            { x: 0, y: 0, w: 1000, h: 425 }, // Top
+            { x: 0, y: 575, w: 1000, h: 425 }, // Bottom
+        ],
+        movingWalls: [
+            // High Speed Cross Traffic
+            { id: 't1', x: 300, y: 425, w: 40, h: 150, duration: 800, path: [{ x: 300, y: 575 }] }, // Down
+            { id: 't2', x: 600, y: 575, w: 40, h: 150, duration: 800, path: [{ x: 600, y: 425 }] }, // Up
+            { id: 't3', x: 800, y: 425, w: 40, h: 150, duration: 600, path: [{ x: 800, y: 575 }] }, // Fast Down
+        ],
+        enemies: [
+            { id: 'chaser', x: 0, y: 500, w: 20, h: 20, type: 'chase', path: [], duration: 0 } // Tailgater
         ]
     },
-    // 52. Precise Timing
+    // 52. Clockwork (Master)
     {
-        id: 52, theme: 'sky', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 90, walls: BOUNDARIES, movingWalls: [
-            { id: 'g1', x: 200, y: 400, w: 600, h: 50, duration: 2000, path: [{ x: -400, y: 400 }] },
+        id: 52,
+        theme: 'sky',
+        start: { x: 500, y: 500 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 120,
+        walls: BOUNDARIES,
+        movingWalls: [
+            // 4 Rotating Arms (Simulated by paths)
+            { id: 'arm1', x: 500, y: 500, w: 400, h: 50, duration: 4000, path: [{ x: 900, y: 500 }, { x: 500, y: 900 }, { x: 100, y: 500 }, { x: 500, y: 100 }] },
+            { id: 'arm2', x: 500, y: 500, w: 50, h: 400, duration: 4000, path: [{ x: 500, y: 900 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 900, y: 500 }] },
+        ],
+        enemies: [
+            // Patrols on the arms
+            { id: 'e1', x: 300, y: 300, w: 30, h: 30, type: 'bug', path: [{ x: 700, y: 700 }], duration: 2000 },
+            { id: 'e2', x: 700, y: 300, w: 30, h: 30, type: 'bug', path: [{ x: 300, y: 700 }], duration: 2000 }
         ]
     },
-    { id: 53, theme: 'sky', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 120, walls: BOUNDARIES, movingWalls: [{ id: 'm1', x: 0, y: 500, w: 1000, h: 50, duration: 4000, path: [{ x: 0, y: 200 }] }] },
-    { id: 54, theme: 'sky', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 120, walls: BOUNDARIES, movingWalls: [{ id: 'm1', x: 500, y: 0, w: 50, h: 1000, duration: 4000, path: [{ x: 800, y: 0 }] }] },
-    // 55. Speed Challenge: Coin Rush
+    // 53. The Chasm (Master)
+    {
+        id: 53,
+        theme: 'sky',
+        start: { x: 50, y: 500 },
+        goal: { x: 950, y: 500 },
+        timeLimit: 120,
+        walls: [
+            ...BOUNDARIES,
+            { x: 200, y: 0, w: 600, h: 1000 }, // The Chasm Pit (Wall)
+        ],
+        movingWalls: [
+            // Moving Platforms (Safe Zones moving horizontally)
+            { id: 'plat1', x: 200, y: 200, w: 100, h: 50, duration: 4000, path: [{ x: 700, y: 200 }] },
+            { id: 'plat2', x: 700, y: 800, w: 100, h: 50, duration: 4000, path: [{ x: 200, y: 800 }] },
+        ],
+        enemies: [
+            // Aerial Patrols
+            { id: 'e1', x: 400, y: 0, w: 30, h: 30, type: 'bug', path: [{ x: 400, y: 1000 }], duration: 3000 },
+            { id: 'e2', x: 600, y: 1000, w: 30, h: 30, type: 'bug', path: [{ x: 600, y: 0 }], duration: 3000 }
+        ],
+        portals: [
+            { id: 'p1', x: 100, y: 800, targetPortalId: 'p2', color: 'blue' }, // Shortcut across? No, just helper
+            { id: 'p2', x: 300, y: 800, targetPortalId: 'p1', color: 'blue' } // Lands on moving platform path?
+        ]
+    },
+    // 54. Ambush (Master)
+    {
+        id: 54,
+        theme: 'sky',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 90,
+        walls: [
+            ...BOUNDARIES,
+            // Central Cage
+            { x: 300, y: 300, w: 50, h: 400 },
+            { x: 650, y: 300, w: 50, h: 400 },
+            { x: 300, y: 300, w: 400, h: 50 },
+            // Gate at bottom
+        ],
+        gates: [
+            { id: 'g1', x: 350, y: 700, w: 300, h: 50, isOpen: false }
+        ],
+        buttons: [
+            { x: 500, y: 500, targetGateId: 'g1' }
+        ],
+        enemies: [
+            // Trapped with player
+            { id: 'e1', x: 350, y: 350, w: 30, h: 30, type: 'chase', path: [], duration: 0 },
+            { id: 'e2', x: 620, y: 350, w: 30, h: 30, type: 'chase', path: [], duration: 0 },
+            { id: 'e3', x: 350, y: 650, w: 30, h: 30, type: 'chase', path: [], duration: 0 },
+            { id: 'e4', x: 620, y: 650, w: 30, h: 30, type: 'chase', path: [], duration: 0 }
+        ]
+    },
+    // 55. Coin Rush (Master)
     {
         id: 55,
         theme: 'sky',
         start: { x: 100, y: 900 },
         goal: { x: 900, y: 100 },
-        timeLimit: 30, // Fast!
+        timeLimit: 25, // Very Tight
         walls: BOUNDARIES,
         collectibles: [
             { x: 200, y: 800, type: 'coin' }, { x: 300, y: 700, type: 'coin' }, { x: 400, y: 600, type: 'coin' },
@@ -1073,88 +1631,131 @@ export const LEVELS: LevelData[] = [
             { x: 800, y: 200, type: 'coin' }
         ],
         movingWalls: [
-            { id: 'm1', x: 400, y: 200, w: 50, h: 50, duration: 1500, path: [{ x: 400, y: 800 }] },
-            { id: 'm2', x: 600, y: 800, w: 50, h: 50, duration: 1500, path: [{ x: 600, y: 200 }] }
+            // Fast Blockers
+            { id: 'm1', x: 300, y: 0, w: 50, h: 1000, duration: 2000, path: [{ x: 400, y: 0 }] }, // Oscillating Columns
+            { id: 'm2', x: 600, y: 0, w: 50, h: 1000, duration: 2000, path: [{ x: 500, y: 0 }] }
+        ],
+        enemies: [
+            { id: 'e1', x: 900, y: 900, w: 40, h: 40, type: 'bug', path: [{ x: 100, y: 100 }], duration: 5000 } // Diagonal Sprinter
         ]
     },
-    // 56. Speed Challenge: Narrow Gaps
+    // 56. Needle Threading (Master)
     {
         id: 56,
         theme: 'sky',
         start: { x: 500, y: 900 },
         goal: { x: 500, y: 100 },
-        timeLimit: 25,
-        walls: [
-            ...BOUNDARIES,
-            { x: 300, y: 700, w: 150, h: 50 },
-            { x: 550, y: 700, w: 150, h: 50 },
-            { x: 300, y: 500, w: 150, h: 50 },
-            { x: 550, y: 500, w: 150, h: 50 },
-            { x: 300, y: 300, w: 150, h: 50 },
-            { x: 550, y: 300, w: 150, h: 50 }
-        ]
-    },
-    // 57. Speed Challenge: Dodge Fast Obstacles
-    {
-        id: 57,
-        theme: 'sky',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 20,
-        walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'fast1', x: 300, y: 100, w: 50, h: 50, duration: 800, path: [{ x: 300, y: 900 }] },
-            { id: 'fast2', x: 500, y: 900, w: 50, h: 50, duration: 800, path: [{ x: 500, y: 100 }] },
-            { id: 'fast3', x: 700, y: 100, w: 50, h: 50, duration: 800, path: [{ x: 700, y: 900 }] }
-        ]
-    },
-    // 58. Speed Challenge: Multi-Checkpoint Race
-    {
-        id: 58,
-        theme: 'sky',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 35,
-        walls: [
-            ...BOUNDARIES,
-            { x: 400, y: 0, w: 200, h: 400 },
-            { x: 400, y: 600, w: 200, h: 400 }
-        ],
-        collectibles: [
-            { x: 300, y: 300, type: 'coin' }, { x: 700, y: 300, type: 'coin' },
-            { x: 300, y: 700, type: 'coin' }, { x: 700, y: 700, type: 'coin' }
-        ]
-    },
-    // 59. Speed Challenge: Spiral Sprint
-    {
-        id: 59,
-        theme: 'sky',
-        start: { x: 500, y: 500 },
-        goal: { x: 100, y: 100 },
         timeLimit: 30,
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 200, w: 600, h: 50 },
-            { x: 750, y: 200, w: 50, h: 600 },
-            { x: 200, y: 750, w: 600, h: 50 },
-            { x: 200, y: 350, w: 50, h: 400 }
+            // Static Base
+            { x: 0, y: 700, w: 450, h: 50 }, { x: 550, y: 700, w: 450, h: 50 },
+            { x: 0, y: 500, w: 450, h: 50 }, { x: 550, y: 500, w: 450, h: 50 },
+            { x: 0, y: 300, w: 450, h: 50 }, { x: 550, y: 300, w: 450, h: 50 },
         ],
         movingWalls: [
-            { id: 'spiral', x: 400, y: 400, w: 100, h: 100, duration: 2000, path: [{ x: 600, y: 600 }] }
+            // Shifting Gaps
+            { id: 'shift1', x: 450, y: 700, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 700 }, { x: 350, y: 700 }] },
+            { id: 'shift2', x: 450, y: 500, w: 100, h: 50, duration: 2500, path: [{ x: 350, y: 500 }, { x: 550, y: 500 }] }, // Counter sync
+        ],
+        enemies: []
+    },
+    // 57. Bullet Hell (Master)
+    {
+        id: 57,
+        theme: 'sky',
+        start: { x: 500, y: 500 },
+        goal: { x: 500, y: 100 },
+        timeLimit: 60,
+        walls: BOUNDARIES,
+        movingWalls: [], // No walls, just bullets
+        enemies: [
+            // Spiral Patterns of Bugs
+            { id: 'b1', x: 200, y: 200, w: 15, h: 15, type: 'bug', path: [{ x: 800, y: 800 }], duration: 2000 },
+            { id: 'b2', x: 800, y: 200, w: 15, h: 15, type: 'bug', path: [{ x: 200, y: 800 }], duration: 2000 },
+            { id: 'b3', x: 200, y: 800, w: 15, h: 15, type: 'bug', path: [{ x: 800, y: 200 }], duration: 2000 },
+            { id: 'b4', x: 800, y: 800, w: 15, h: 15, type: 'bug', path: [{ x: 200, y: 200 }], duration: 2000 },
+            { id: 'b5', x: 500, y: 100, w: 15, h: 15, type: 'bug', path: [{ x: 500, y: 900 }], duration: 1500 }, // Vertical
+            { id: 'b6', x: 100, y: 500, w: 15, h: 15, type: 'bug', path: [{ x: 900, y: 500 }], duration: 1500 }, // Horizontal
+            { id: 'b7', x: 400, y: 400, w: 15, h: 15, type: 'bug', path: [{ x: 600, y: 600 }, { x: 400, y: 600 }, { x: 600, y: 400 }], duration: 1000 } // Center Chaos
         ]
     },
-    // 60. Speed Challenge: Boss Rush
+    // 58. The Marathon (Master)
+    {
+        id: 58,
+        theme: 'sky',
+        start: { x: 50, y: 50 },
+        goal: { x: 950, y: 950 },
+        timeLimit: 180,
+        walls: [
+            ...BOUNDARIES,
+            // Vertical Lanes
+            { x: 150, y: 100, w: 50, h: 900 },
+            { x: 350, y: 0, w: 50, h: 900 },
+            { x: 550, y: 100, w: 50, h: 900 },
+            { x: 750, y: 0, w: 50, h: 900 },
+        ],
+        enemies: [
+            { id: 'e1', x: 100, y: 100, w: 30, h: 30, type: 'bug', path: [{ x: 100, y: 900 }], duration: 4000 },
+            { id: 'e2', x: 300, y: 900, w: 30, h: 30, type: 'bug', path: [{ x: 300, y: 100 }], duration: 4000 },
+            { id: 'e3', x: 500, y: 100, w: 30, h: 30, type: 'bug', path: [{ x: 500, y: 900 }], duration: 4000 },
+            { id: 'e4', x: 700, y: 900, w: 30, h: 30, type: 'bug', path: [{ x: 700, y: 100 }], duration: 4000 },
+            { id: 'e5', x: 900, y: 100, w: 30, h: 30, type: 'bug', path: [{ x: 900, y: 900 }], duration: 4000 },
+        ]
+    },
+    // 59. Chaos Theory (Master)
+    {
+        id: 59,
+        theme: 'sky',
+        start: { x: 500, y: 900 },
+        goal: { x: 500, y: 500 },
+        timeLimit: 60,
+        walls: BOUNDARIES,
+        movingWalls: [
+            { id: 'c1', x: 100, y: 100, w: 50, h: 50, duration: 1500, path: [{ x: 900, y: 900 }] },
+            { id: 'c2', x: 900, y: 100, w: 50, h: 50, duration: 2300, path: [{ x: 100, y: 900 }] },
+            { id: 'c3', x: 100, y: 500, w: 50, h: 50, duration: 1200, path: [{ x: 900, y: 500 }] },
+            { id: 'c4', x: 500, y: 100, w: 50, h: 50, duration: 3700, path: [{ x: 500, y: 900 }] },
+            { id: 'c5', x: 200, y: 300, w: 600, h: 50, duration: 4000, path: [{ x: 200, y: 600 }] } // Slow crusher
+        ]
+    },
+    // 60. The Grandmaster (Master)
     {
         id: 60,
         theme: 'sky',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 40,
-        walls: BOUNDARIES,
+        start: { x: 500, y: 950 },
+        goal: { x: 500, y: 450 }, // Inside the Keep
+        timeLimit: 300,
+        walls: [
+            ...BOUNDARIES,
+            // Outer Fortress
+            { x: 100, y: 800, w: 350, h: 50 }, { x: 550, y: 800, w: 350, h: 50 },
+            // Inner Keep
+            { x: 300, y: 400, w: 400, h: 50 }, // Top
+            { x: 300, y: 600, w: 400, h: 50 }, // Bottom
+            { x: 300, y: 400, w: 50, h: 250 }, // Left
+            { x: 650, y: 400, w: 50, h: 250 }, // Right
+        ],
+        gates: [
+            { id: 'g_outer', x: 450, y: 800, w: 100, h: 50, isOpen: false },
+            { id: 'g_inner', x: 450, y: 600, w: 100, h: 50, isOpen: false }
+        ],
+        buttons: [
+            { x: 100, y: 100, targetGateId: 'g_outer' }, // Far Corner 1
+            { x: 900, y: 100, targetGateId: 'g_inner' }, // Far Corner 2
+        ],
+        portals: [
+            { id: 'p1', x: 100, y: 700, targetPortalId: 'p2', color: 'orange' }, // Past outer wall
+            { id: 'p2', x: 100, y: 150, targetPortalId: 'p1', color: 'orange' }, // To Button 1
+            { id: 'p3', x: 900, y: 700, targetPortalId: 'p4', color: 'blue' },
+            { id: 'p4', x: 900, y: 150, targetPortalId: 'p3', color: 'blue' } // To Button 2
+        ],
         enemies: [
-            { id: 'e1', x: 200, y: 700, w: 80, h: 80, type: 'patrol', duration: 1000, path: [{ x: 800, y: 700 }] },
-            { id: 'e2', x: 800, y: 500, w: 80, h: 80, type: 'patrol', duration: 1000, path: [{ x: 200, y: 500 }] },
-            { id: 'e3', x: 200, y: 300, w: 80, h: 80, type: 'patrol', duration: 1000, path: [{ x: 800, y: 300 }] }
+            // The Elite Guard
+            { id: 'g1', x: 350, y: 500, w: 30, h: 30, type: 'bug', path: [{ x: 620, y: 500 }], duration: 1000 },
+            { id: 'g2', x: 500, y: 450, w: 30, h: 30, type: 'bug', path: [{ x: 500, y: 550 }], duration: 1000 },
+            { id: 'sw1', x: 100, y: 300, w: 20, h: 20, type: 'chase', path: [], duration: 0 },
+            { id: 'sw2', x: 900, y: 300, w: 20, h: 20, type: 'chase', path: [], duration: 0 }
         ]
     },
     // --- WORLD 4: The Lava Cave ---

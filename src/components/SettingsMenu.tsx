@@ -6,6 +6,7 @@ import { ProgressManager } from '../game/ProgressManager';
 import { AchievementManager } from '../game/AchievementManager';
 import { LeaderboardManager } from '../game/LeaderboardManager';
 import { GameDataManager } from '../game/GameDataManager';
+import { CollectibleIcon } from './CollectibleIcon';
 
 interface SettingsMenuProps {
     onClose: () => void;
@@ -21,6 +22,7 @@ export const SettingsMenu = ({ onClose }: SettingsMenuProps) => {
         totalDeaths: 0,
         totalCoins: 0,
         totalGems: 0,
+        totalHearts: 0,
         achievementsUnlocked: 0
     });
 
@@ -36,6 +38,7 @@ export const SettingsMenu = ({ onClose }: SettingsMenuProps) => {
             totalDeaths: progressManager.getTotalDeaths(),
             totalCoins: progressManager.getTotalCoins(),
             totalGems: progressManager.getTotalGems(),
+            totalHearts: progressManager.getTotalHearts(),
             achievementsUnlocked: achievementManager.getUnlockedCount()
         });
     }, []);
@@ -82,6 +85,7 @@ export const SettingsMenu = ({ onClose }: SettingsMenuProps) => {
             totalDeaths: 0,
             totalCoins: 0,
             totalGems: 0,
+            totalHearts: 0,
             achievementsUnlocked: 0
         });
 
@@ -118,13 +122,23 @@ export const SettingsMenu = ({ onClose }: SettingsMenuProps) => {
                             <div className="stat-label">Achievements</div>
                         </div>
                         <div className="stat-box">
-                            <div className="stat-value">{stats.totalCoins} 🪙</div>
+                            <div className="stat-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                {stats.totalCoins} <CollectibleIcon type="coin" size={24} />
+                            </div>
                             <div className="stat-label">Coins</div>
                         </div>
                         <div className="stat-box">
-                            <div className="stat-value">{stats.totalGems} 💎</div>
+                            <div className="stat-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                {stats.totalGems} <CollectibleIcon type="gem" size={24} />
+                            </div>
                             <div className="stat-label">Gems</div>
                         </div>
+                        {/* <div className="stat-box">
+                            <div className="stat-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                {stats.totalHearts} <CollectibleIcon type="heart" size={24} />
+                            </div>
+                            <div className="stat-label">Hearts</div>
+                        </div> */}
                     </div>
                 </div>
 

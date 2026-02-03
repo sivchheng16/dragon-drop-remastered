@@ -4,6 +4,8 @@ interface GameHudProps {
     gameState: GameState;
 }
 
+import { CollectibleIcon } from './CollectibleIcon';
+
 export const GameHud = ({ gameState }: GameHudProps) => {
     // Calculate star thresholds (matching GameEngine logic)
     const starThresholds = [60, 30]; // 3★: 60s+, 2★: 30s+, 1★: complete
@@ -38,12 +40,20 @@ export const GameHud = ({ gameState }: GameHudProps) => {
 
             {/* CENTER: Stage */}
             <div className="hud-level">
-                Stage: {gameState.currentLevelIdx + 1}
+                Stage: {gameState.currentLevelIdx}
             </div>
 
-            {/* RIGHT: Score */}
-            <div className="hud-score">
-                Score: {gameState.score}
+            {/* RIGHT: Stats */}
+            <div className="hud-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                <div>Score: {gameState.score}</div>
+                {/* <div style={{ display: 'flex', gap: '15px', alignItems: 'center', fontSize: '20px', marginTop: '5px' }}>
+                    <span title="Lives" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <CollectibleIcon type="coin" size={24} /> {gameState.lives}
+                    </span>
+                    <span title="Gems" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <CollectibleIcon type="gem" size={24} /> {gameState.gemsCollected}
+                    </span>
+                </div> */}
             </div>
         </div>
     );

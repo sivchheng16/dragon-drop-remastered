@@ -21,7 +21,7 @@ import goldFloorImg from '../assets/images/gold_floor.png';
 import knightImg from '../assets/images/knight.png';
 import wingsImg from '../assets/images/wings.png';
 import portalBlueImg from '../assets/images/portal_blue.png';
-import portalOrangeImg from '../assets/images/portal_orange.png';
+import beetleImg from '../assets/images/beetle.png';
 
 export const ASSET_MANIFEST = {
     dragon: dragonImg,
@@ -47,7 +47,7 @@ export const ASSET_MANIFEST = {
     knight: knightImg,
     wings: wingsImg,
     portal_blue: portalBlueImg,
-    portal_orange: portalOrangeImg,
+    beetle: beetleImg,
 };
 
 export type AssetKey = keyof typeof ASSET_MANIFEST;
