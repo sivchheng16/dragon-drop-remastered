@@ -18,7 +18,7 @@ import obsidianFloorImg from '../assets/images/obsidian_floor.png';
 import obsidianWallImg from '../assets/images/obsidian_wall.png';
 import crackedFloorImg from '../assets/images/cracked_floor.png';
 import goldFloorImg from '../assets/images/gold_floor.png';
-import knightImg from '../assets/images/knight.png';
+import boomImg from '../assets/images/boom_ball.png';
 import wingsImg from '../assets/images/wings.png';
 import portalBlueImg from '../assets/images/portal_blue.png';
 import beetleImg from '../assets/images/beetle.png';
@@ -44,7 +44,7 @@ export const ASSET_MANIFEST = {
     obsidianWall: obsidianWallImg,
     crackedFloor: crackedFloorImg,
     goldFloor: goldFloorImg,
-    knight: knightImg,
+    boom: boomImg,
     wings: wingsImg,
     portal_blue: portalBlueImg,
     beetle: beetleImg,

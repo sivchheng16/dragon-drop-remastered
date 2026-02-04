@@ -48,7 +48,7 @@ export interface MovingEntity {
     startTime: number;
     duration: number;
     path: Point[];
-    type?: 'patrol' | 'chase' | 'bug'; // Optional type for enemies
+    type?: 'patrol' | 'chase' | 'bug'; // Optional type for boom
     velocity?: { x: number, y: number }; // Added for physics-based movement
 }
 
@@ -74,7 +74,7 @@ export interface GameState {
     buttons: Button[];
     movingWalls: MovingEntity[];
     crumblingFloors: CrumblingFloor[];
-    enemies: MovingEntity[];
+    boom: MovingEntity[];
     movingGoal?: {
         currentPos: Point;
         startTime: number;
@@ -131,7 +131,7 @@ export class GameEngine {
         obsidianWall: new Image(),
         crackedFloor: new Image(),
         goldFloor: new Image(),
-        knight: new Image(),
+        boom: new Image(),
         wings: new Image(),
     };
     private patterns: { wall: CanvasPattern | null, sky: CanvasPattern | null, grass: CanvasPattern | null, stoneFloor: CanvasPattern | null, stoneWall: CanvasPattern | null, obsidianFloor: CanvasPattern | null, obsidianWall: CanvasPattern | null, lava: CanvasPattern | null, goldFloor: CanvasPattern | null } = { wall: null, sky: null, grass: null, stoneFloor: null, stoneWall: null, obsidianFloor: null, obsidianWall: null, lava: null, goldFloor: null };
@@ -151,7 +151,7 @@ export class GameEngine {
         // Initialize runtime state for interactive elements
         // Always initialize when GameEngine is created (level start)
         const isHardMode = level.id > 20;
-        const speedMult = isHardMode ? 1.5 : 1; // 50% faster enemies/walls
+        const speedMult = isHardMode ? 1.5 : 1; // 50% faster boom/walls
         const timeMult = isHardMode ? 0.75 : 1; // 25% less time
 
         if (isHardMode) {
@@ -175,7 +175,7 @@ export class GameEngine {
             triggeredAt: null,
             isCrumbled: false
         })) : [];
-        this.state.enemies = level.enemies ? level.enemies.map(e => ({
+        this.state.boom = level.boom ? level.boom.map(e => ({
             ...e,
             currentPos: { x: e.x, y: e.y },
             startTime: Date.now(),
@@ -186,7 +186,7 @@ export class GameEngine {
         // Ensure at least 5 bugs exist in every level (Levels 41-100 only)
         if (this.level.id >= 41 && this.level.id <= 100) {
             const BUG_COUNT_TARGET = 5;
-            const currentBugs = this.state.enemies.filter(e => e.type === 'bug').length;
+            const currentBugs = this.state.boom.filter(e => e.type === 'bug').length;
             if (currentBugs < BUG_COUNT_TARGET) {
                 const bugsNeeded = BUG_COUNT_TARGET - currentBugs;
                 for (let i = 0; i < bugsNeeded; i++) {
@@ -207,7 +207,7 @@ export class GameEngine {
                     if (valid) {
                         const angle = Math.random() * Math.PI * 2;
                         const speed = 2 + Math.random() * 2; // Random speed 2-4
-                        this.state.enemies.push({
+                        this.state.boom.push({
                             x: bx, y: by, w: 40, h: 40,
                             currentPos: { x: bx, y: by },
                             startTime: Date.now(),
@@ -345,7 +345,7 @@ export class GameEngine {
         this.assets.obsidianWall = loader.get('obsidianWall');
         this.assets.crackedFloor = loader.get('crackedFloor');
         this.assets.goldFloor = loader.get('goldFloor');
-        this.assets.knight = loader.get('knight');
+        this.assets.boom = loader.get('boom');
         (this.assets as any).beetle = loader.get('beetle');
         this.assets.wings = loader.get('wings');
 
@@ -657,15 +657,15 @@ export class GameEngine {
             }
         }
 
-        // Check Enemies (Consolidated in Update loop for physics enemies, but needed here for static patrol?)
-        // The update loop handles physics enemies collision during move.
-        // We still need a check here for non-moving / path-based enemies just in case, 
+        // Check Enemies (Consolidated in Update loop for physics boom, but needed here for static patrol?)
+        // The update loop handles physics boom collision during move.
+        // We still need a check here for non-moving / path-based boom just in case, 
         // OR we can centralize collision logic.
-        // Current logic in update() handles collision for moving enemies.
+        // Current logic in update() handles collision for moving boom.
         // But what if dragon moves into them?
         // Let's keep this check for SAFETY.
-        if (this.state.enemies) {
-            for (const enemy of this.state.enemies) {
+        if (this.state.boom) {
+            for (const enemy of this.state.boom) {
                 // Bug collision handled in update() mainly, but redundancy is fine for safety.
                 const cx = (enemy.currentPos?.x ?? enemy.x) + enemy.w / 2;
                 const cy = (enemy.currentPos?.y ?? enemy.y) + enemy.h / 2;
@@ -1034,8 +1034,8 @@ export class GameEngine {
         }
 
         // Update Enemies
-        if (this.state.enemies) {
-            for (const enemy of this.state.enemies) {
+        if (this.state.boom) {
+            for (const enemy of this.state.boom) {
                 // Initialize startTime
                 if (!enemy.startTime) enemy.startTime = this.gameTime;
 
@@ -1607,17 +1607,17 @@ export class GameEngine {
         }
 
         // Enemies
-        if (this.state.enemies) {
-            for (const enemy of this.state.enemies) {
+        if (this.state.boom) {
+            for (const enemy of this.state.boom) {
                 // Check if it's a bug
                 // Note: We need to cast or check type properties if available in runtime state
                 // Since `Enemy` interface has `type`, we can use it. But `MovingEntity` (game state) might not.
-                // Looking at `GameState` interface, `enemies` is `MovingEntity[]`. 
+                // Looking at `GameState` interface, `boom` is `MovingEntity[]`. 
                 // `MovingEntity` DOES NOT have `type`.
                 // I need to update `MovingEntity` in GameEngine.ts first! 
                 // Wait, let's check `levels.ts` again. The `Enemy` interface has `type`.
                 // The `GameEngine` converts `LevelData` to `GameState`.
-                // I should verify where `enemies` are initialized.
+                // I should verify where `boom` are initialized.
 
                 // Let's assume for now I will fix the type issue next. 
                 // I'll assume `enemy` has a `type` property or I can link it back.
@@ -1660,7 +1660,7 @@ export class GameEngine {
 
                     this.ctx.restore();
                 } else {
-                    this.ctx.drawImage(this.assets.knight, enemy.currentPos.x, enemy.currentPos.y, enemy.w, enemy.h);
+                    this.ctx.drawImage(this.assets.boom, enemy.currentPos.x, enemy.currentPos.y, enemy.w, enemy.h);
                 }
             }
         }
@@ -2022,9 +2022,9 @@ export class GameEngine {
         this.ctx.restore(); // Restore shake
 
         // Danger Glow (Red Vignette)
-        if (this.state.enemies && this.state.enemies.length > 0 && this.state.status === 'PLAYING') {
+        if (this.state.boom && this.state.boom.length > 0 && this.state.status === 'PLAYING') {
             let minDist = Infinity;
-            for (const enemy of this.state.enemies) {
+            for (const enemy of this.state.boom) {
                 const dist = Math.hypot(this.dragonPos.x - enemy.currentPos.x, this.dragonPos.y - enemy.currentPos.y);
                 if (dist < minDist) minDist = dist;
             }
