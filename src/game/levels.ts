@@ -1825,7 +1825,7 @@ export const LEVELS: LevelData[] = [
     {
         id: 60,
         theme: 'sky',
-        start: { x: 500, y: 950 },
+        start: { x: 400, y: 900 },
         goal: { x: 500, y: 500 },
         timeLimit: 120,
         walls: [
@@ -1870,6 +1870,9 @@ export const LEVELS: LevelData[] = [
             // Breach: Outside Bottom -> Inside Top
             { id: 'p1', x: 150, y: 900, targetPortalId: 'p2', color: 'orange' }, // Entry Left
             { id: 'p2', x: 200, y: 250, targetPortalId: 'p1', color: 'orange' }, // Exit Top Left
+
+            { id: 'p5', x: 500, y: 250, targetPortalId: 'p6', color: 'orange' }, // Enter center
+            { id: 'p6', x: 500, y: 550, targetPortalId: 'p5', color: 'orange' }, // Exit center
 
             { id: 'p3', x: 850, y: 900, targetPortalId: 'p4', color: 'blue' }, // Entry Right
             { id: 'p4', x: 800, y: 250, targetPortalId: 'p3', color: 'blue' } // Exit Top Right
