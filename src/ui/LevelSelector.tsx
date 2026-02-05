@@ -11,8 +11,8 @@ const WORLDS = [
     { name: "Meadow", start: 1, end: 20, theme: 'meadow' },
     { name: "Castle", start: 21, end: 40, theme: 'castle' },
     { name: "Sky", start: 41, end: 60, theme: 'sky' },
-    { name: "Lava", start: 61, end: 80, theme: 'lava' },
-    { name: "Lair", start: 81, end: 100, theme: 'lair' },
+    // { name: "Lava", start: 61, end: 80, theme: 'lava' },
+    // { name: "Lair", start: 81, end: 100, theme: 'lair' },
 ];
 
 export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectLevel, onBack, completedLevels }) => {
@@ -37,7 +37,7 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectLevel, onB
                 {Array.from({ length: 20 }).map((_, i) => {
                     const levelId = WORLDS[activeTab].start + i;
                     const isLocked = levelId > 1 && !completedLevels.includes(levelId - 1); // Simplistic lock logic
-
+                    // const isLocked = false
                     return (
                         <button
                             key={levelId}

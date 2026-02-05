@@ -1,4 +1,4 @@
-# Dragon Drop Remastered
+# Dragon Drop
 
 This game is made for students near the border to learn how to use a computer mouse.
 

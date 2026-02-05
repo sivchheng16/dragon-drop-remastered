@@ -10,6 +10,7 @@ import { AssetLoader } from './game/AssetLoader';
 import { AchievementNotification } from './components/AchievementNotification';
 import { AchievementManager, Achievement } from './game/AchievementManager';
 import { SettingsMenu } from './components/SettingsMenu';
+import { AboutModal } from './ui/AboutModal';
 import { SessionManager } from './game/SessionManager';
 import { SettingsManager } from './game/SettingsManager';
 import './assets/styles/index.css';
@@ -40,6 +41,7 @@ function App() {
     const [showTutorial, setShowTutorial] = useState(false);
     const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
     const [showSettings, setShowSettings] = useState(false);
+    const [showAbout, setShowAbout] = useState(false);
 
     // Initialize achievement manager
     useEffect(() => {
@@ -110,7 +112,8 @@ function App() {
 
     const [completedLevels, setCompletedLevels] = useState<number[]>(() => {
         const saved = localStorage.getItem('dragon_drop_completed_levels');
-        return saved ? JSON.parse(saved) : [1]; // Level 1 unlocked by default
+        // return saved ? JSON.parse(saved) : [1]; // Level 1 unlocked by default
+        return saved ? JSON.parse(saved) : []; // Start with empty array
     });
 
     // Save completedLevels to localStorage whenever it changes
@@ -139,17 +142,27 @@ function App() {
         }));
     };
 
+    // const handleLevelComplete = (levelId: number) => {
+    //     const newCompleted = [...completedLevels];
+    //     // Mark current level as completed
+    //     if (!newCompleted.includes(levelId)) {
+    //         newCompleted.push(levelId);
+    //     }
+    //     // Unlock next level
+    //     const nextLevel = levelId + 1;
+    //     if (nextLevel <= 100 && !newCompleted.includes(nextLevel)) {
+    //         newCompleted.push(nextLevel);
+    //     }
+    //     setCompletedLevels(newCompleted);
+    // };
+
     const handleLevelComplete = (levelId: number) => {
         const newCompleted = [...completedLevels];
         // Mark current level as completed
         if (!newCompleted.includes(levelId)) {
             newCompleted.push(levelId);
         }
-        // Unlock next level
-        const nextLevel = levelId + 1;
-        if (nextLevel <= 100 && !newCompleted.includes(nextLevel)) {
-            newCompleted.push(nextLevel);
-        }
+        // Next level will be unlocked automatically by the lock logic checking if this level is completed
         setCompletedLevels(newCompleted);
     };
 
@@ -164,6 +177,7 @@ function App() {
                 <MainMenu
                     onPlay={() => setGameState(prev => ({ ...prev, status: 'LEVEL_SELECT' }))}
                     onSettings={() => setShowSettings(true)}
+                    onAbout={() => setShowAbout(true)}
                 />
             )}
 
@@ -225,6 +239,9 @@ function App() {
 
             {/* Settings Menu */}
             {showSettings && <SettingsMenu onClose={() => setShowSettings(false)} />}
+
+            {/* About Modal */}
+            {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
 
             {/* Achievement Notification */}
             <AchievementNotification

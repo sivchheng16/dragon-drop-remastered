@@ -1,9 +1,9 @@
 {
   "name": "dragon-drop-remastered",
   "private": true,
-  "description": "Dragon Drop Remastered Desktop App",
+  "description": "Dragon Drop Desktop App",
   "author": "Antigravity",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.antigravity.dragondrop",
-    "productName": "Dragon Drop Remastered",
+    "productName": "Dragon Drop",
     "directories": {
       "output": "release"
     },
