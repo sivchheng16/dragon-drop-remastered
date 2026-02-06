@@ -169,38 +169,37 @@ export const LEVELS: LevelData[] = [
             { x: 750, y: 200, w: 50, h: 600 },
         ],
     },
-    // 3. Zig Zag
+    // 3. The Cage
     {
         id: 3,
         theme: 'meadow',
         start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 90,
+        goal: { x: 500, y: 500 },
+        timeLimit: 50,
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 0, w: 50, h: 700 },
-            { x: 400, y: 300, w: 50, h: 700 },
-            { x: 600, y: 0, w: 50, h: 700 },
-            { x: 800, y: 300, w: 50, h: 700 },
+            { x: 300, y: 300, w: 400, h: 50 }, // Top
+            { x: 300, y: 650, w: 400, h: 50 }, // Bottom
+            { x: 300, y: 300, w: 50, h: 400 }, // Left
+            { x: 650, y: 300, w: 50, h: 250 }, // Right (Gap at bottom increased -> 100px)
         ],
     },
-    // 4. Spiral In
+    // 4. The Boss
     {
         id: 4,
         theme: 'meadow',
-        start: { x: 100, y: 100 },
+        start: { x: 500, y: 900 },
         goal: { x: 500, y: 500 },
-        timeLimit: 80,
+        timeLimit: 120,
         walls: [
             ...BOUNDARIES,
-            { x: 50, y: 150, w: 750, h: 50 }, // Top
-            { x: 800, y: 150, w: 50, h: 700 }, // Right
-            { x: 150, y: 800, w: 650, h: 50 }, // Bottom
-            { x: 150, y: 300, w: 50, h: 500 }, // Left
-            { x: 150, y: 270, w: 500, h: 50 }, // Inner Top
-            { x: 600, y: 300, w: 50, h: 350 }, // Inner Right
-            { x: 300, y: 650, w: 350, h: 50 }, // Inner Bottom
-
+            { x: 200, y: 100, w: 600, h: 50 },
+            { x: 200, y: 100, w: 50, h: 600 },
+            { x: 750, y: 100, w: 50, h: 600 },
+            { x: 200, y: 700, w: 250, h: 50 },
+            { x: 550, y: 700, w: 250, h: 50 },
+            // Goal inside, enter from bottom gap
+            { x: 450, y: 550, w: 100, h: 50 }, // Guarding goal
         ],
     },
     // 5. Four Chambers
@@ -253,19 +252,19 @@ export const LEVELS: LevelData[] = [
             // { x: 450, y: 450, w: 100, h: 100 },
         ],
     },
-    // 8. The Cage
+    // 8. Zig Zag
     {
         id: 8,
         theme: 'meadow',
         start: { x: 100, y: 100 },
-        goal: { x: 500, y: 500 },
-        timeLimit: 50,
+        goal: { x: 900, y: 900 },
+        timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            { x: 300, y: 300, w: 400, h: 50 }, // Top
-            { x: 300, y: 650, w: 400, h: 50 }, // Bottom
-            { x: 300, y: 300, w: 50, h: 400 }, // Left
-            { x: 650, y: 300, w: 50, h: 250 }, // Right (Gap at bottom increased -> 100px)
+            { x: 200, y: 0, w: 50, h: 700 },
+            { x: 400, y: 300, w: 50, h: 700 },
+            { x: 600, y: 0, w: 50, h: 700 },
+            { x: 800, y: 300, w: 50, h: 700 },
         ],
     },
     // 9. Diagonal Step
@@ -514,73 +513,53 @@ export const LEVELS: LevelData[] = [
             { x: 500, y: 300, w: 50, h: 200 }, // Block connection
         ],
     },
-    // 20. The Boss
+    // 20. Spiral In
     {
         id: 20,
         theme: 'meadow',
-        start: { x: 500, y: 900 },
+        start: { x: 100, y: 100 },
         goal: { x: 500, y: 500 },
-        timeLimit: 120,
+        timeLimit: 80,
         walls: [
             ...BOUNDARIES,
-            { x: 200, y: 100, w: 600, h: 50 },
-            { x: 200, y: 100, w: 50, h: 600 },
-            { x: 750, y: 100, w: 50, h: 600 },
-            { x: 200, y: 700, w: 250, h: 50 },
-            { x: 550, y: 700, w: 250, h: 50 },
-            // Goal inside, enter from bottom gap
-            { x: 450, y: 550, w: 100, h: 50 }, // Guarding goal
+            { x: 50, y: 150, w: 750, h: 50 }, // Top
+            { x: 800, y: 150, w: 50, h: 700 }, // Right
+            { x: 150, y: 800, w: 650, h: 50 }, // Bottom
+            { x: 150, y: 300, w: 50, h: 500 }, // Left
+            { x: 150, y: 270, w: 500, h: 50 }, // Inner Top
+            { x: 600, y: 300, w: 50, h: 350 }, // Inner Right
+            { x: 300, y: 650, w: 350, h: 50 }, // Inner Bottom
+
         ],
     },
     // --- WORLD 2: The Stone Castle ---
-    // 21. The Gatekeeper (Redesigned)
+    // 21. The Courtyard (Fixed: Gates inside Walls)
     {
         id: 21,
         theme: 'castle',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
+        start: { x: 500, y: 500 },
+        goal: { x: 500, y: 100 },
         timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            // Central Spine (Dividing Left/Right)
-            { x: 475, y: 130, w: 50, h: 700 },
+            // Top Wall Split (Gap 450-550)
+            { x: 200, y: 200, w: 350, h: 50 },
+            { x: 500, y: 200, w: 250, h: 50 },
+            // Bottom Wall Split (Gap 450-550)
+            { x: 200, y: 800, w: 250, h: 50 },
+            { x: 550, y: 800, w: 250, h: 50 },
 
-            // Left Sector Walls (Forcing a weave down to button)
-            { x: 150, y: 300, w: 325, h: 50 }, // Horizontal Barrier
-            { x: 0, y: 600, w: 350, h: 50 },   // Horizontal Barrier above button
-
-            // Right Sector Walls
-            { x: 650, y: 200, w: 350, h: 50 }, // Top blocking wall
-            { x: 525, y: 500, w: 300, h: 50 }, // Mid blocking wall
-
-            // Goal Fortress (Bottom Right)
-            { x: 850, y: 750, w: 100, h: 50 }, // Roof of goal room
-            { x: 750, y: 850, w: 50, h: 100 }, // Wall of goal room (Gate will be here)
+            { x: 200, y: 200, w: 50, h: 600 }, // Left box
+            { x: 750, y: 200, w: 50, h: 600 }, // Right box
         ],
         // gates: [
-        //     { id: 'g_main', x: 750, y: 850, w: 50, h: 100 }, // The Gatekeeper
+        //     { id: 'g1', x: 450, y: 200, w: 100, h: 50 }, // Top Gate
+        //     { id: 'g2', x: 450, y: 800, w: 100, h: 50 }, // Bottom Gate
         // ],
         // buttons: [
-        //     { x: 100, y: 900, targetGateId: 'g_main', timer: 20 }, // Far reach
-        // ],
-        movingWalls: [
-            // The Crushers (Vertical patrols)
-            { id: 'm1', x: 250, y: 0, w: 50, h: 250, duration: 2000, path: [{ x: 250, y: 300 }] },
-            { id: 'm2', x: 600, y: 550, w: 50, h: 250, duration: 2500, path: [{ x: 600, y: 750 }] },
-
-            // The Sweeper (Horizontal)
-            { id: 'm3', x: 525, y: 350, w: 100, h: 50, duration: 3000, path: [{ x: 850, y: 350 }] },
-        ],
-        boom: [
-            { id: 'e1', x: 300, y: 450, w: 50, h: 50, type: 'patrol', path: [{ x: 100, y: 450 }, { x: 450, y: 450 }], duration: 3000 },
-            { id: 'e2', x: 850, y: 100, w: 50, h: 50, type: 'patrol', path: [{ x: 850, y: 600 }], duration: 2500 }
-        ],
-        collectibles: [
-            { x: 850, y: 850, type: 'gem' }, // In goal room
-            { x: 50, y: 500, type: 'coin' }, // Left niche
-            { x: 900, y: 100, type: 'coin' }, // Top Right corner
-            { x: 500, y: 900, type: 'heart' }, // Bottom center danger zone
-        ]
+        //     { x: 300, y: 500, targetGateId: 'g1', timer: 6 },
+        //     { x: 700, y: 500, targetGateId: 'g2', timer: 6 },
+        // ]
     },
     // 22. Double Trouble (Fixed: Added Portals)
     {
@@ -618,32 +597,24 @@ export const LEVELS: LevelData[] = [
         //     { x: 100, y: 200, targetGateId: 'g1', timer: 8 },
         // ]
     },
-    // 24. The Courtyard (Fixed: Gates inside Walls)
+    // 24. Split Decision
     {
         id: 24,
         theme: 'castle',
-        start: { x: 500, y: 500 },
+        start: { x: 500, y: 900 },
         goal: { x: 500, y: 100 },
-        timeLimit: 90,
+        timeLimit: 100,
         walls: [
             ...BOUNDARIES,
-            // Top Wall Split (Gap 450-550)
-            { x: 200, y: 200, w: 350, h: 50 },
-            { x: 500, y: 200, w: 250, h: 50 },
-            // Bottom Wall Split (Gap 450-550)
-            { x: 200, y: 800, w: 250, h: 50 },
-            { x: 550, y: 800, w: 250, h: 50 },
-
-            { x: 200, y: 200, w: 50, h: 600 }, // Left box
-            { x: 750, y: 200, w: 50, h: 600 }, // Right box
+            { x: 450, y: 200, w: 100, h: 600 },
         ],
-        // gates: [
-        //     { id: 'g1', x: 450, y: 200, w: 100, h: 50 }, // Top Gate
-        //     { id: 'g2', x: 450, y: 800, w: 100, h: 50 }, // Bottom Gate
-        // ],
+        gates: [
+            { id: 'g_left', x: 300, y: 500, w: 150, h: 50 },
+            { id: 'g_right', x: 550, y: 500, w: 150, h: 50 },
+        ],
         // buttons: [
-        //     { x: 300, y: 500, targetGateId: 'g1', timer: 6 },
-        //     { x: 700, y: 500, targetGateId: 'g2', timer: 6 },
+        //     { x: 400, y: 900, targetGateId: 'g_left' },
+        //     { x: 600, y: 900, targetGateId: 'g_right' },
         // ]
     },
     // 25. Zig Zag Gates
@@ -1209,25 +1180,54 @@ export const LEVELS: LevelData[] = [
             { x: 500, y: 950, type: 'heart' }, // Start Area
         ]
     },
-    // 39. Split Decision
+    // 39. The Gatekeeper (Redesigned)
     {
         id: 39,
         theme: 'castle',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 100,
+        start: { x: 100, y: 100 },
+        goal: { x: 900, y: 900 },
+        timeLimit: 90,
         walls: [
             ...BOUNDARIES,
-            { x: 450, y: 200, w: 100, h: 600 },
+            // Central Spine (Dividing Left/Right)
+            { x: 475, y: 130, w: 50, h: 700 },
+
+            // Left Sector Walls (Forcing a weave down to button)
+            { x: 150, y: 300, w: 325, h: 50 }, // Horizontal Barrier
+            { x: 0, y: 600, w: 350, h: 50 },   // Horizontal Barrier above button
+
+            // Right Sector Walls
+            { x: 650, y: 200, w: 350, h: 50 }, // Top blocking wall
+            { x: 525, y: 500, w: 300, h: 50 }, // Mid blocking wall
+
+            // Goal Fortress (Bottom Right)
+            { x: 850, y: 750, w: 100, h: 50 }, // Roof of goal room
+            { x: 750, y: 850, w: 50, h: 100 }, // Wall of goal room (Gate will be here)
         ],
-        gates: [
-            { id: 'g_left', x: 300, y: 500, w: 150, h: 50 },
-            { id: 'g_right', x: 550, y: 500, w: 150, h: 50 },
-        ],
+        // gates: [
+        //     { id: 'g_main', x: 750, y: 850, w: 50, h: 100 }, // The Gatekeeper
+        // ],
         // buttons: [
-        //     { x: 400, y: 900, targetGateId: 'g_left' },
-        //     { x: 600, y: 900, targetGateId: 'g_right' },
-        // ]
+        //     { x: 100, y: 900, targetGateId: 'g_main', timer: 20 }, // Far reach
+        // ],
+        movingWalls: [
+            // The Crushers (Vertical patrols)
+            { id: 'm1', x: 250, y: 0, w: 50, h: 250, duration: 2000, path: [{ x: 250, y: 300 }] },
+            { id: 'm2', x: 600, y: 550, w: 50, h: 250, duration: 2500, path: [{ x: 600, y: 750 }] },
+
+            // The Sweeper (Horizontal)
+            { id: 'm3', x: 525, y: 350, w: 100, h: 50, duration: 3000, path: [{ x: 850, y: 350 }] },
+        ],
+        boom: [
+            { id: 'e1', x: 300, y: 450, w: 50, h: 50, type: 'patrol', path: [{ x: 100, y: 450 }, { x: 450, y: 450 }], duration: 3000 },
+            { id: 'e2', x: 850, y: 100, w: 50, h: 50, type: 'patrol', path: [{ x: 850, y: 600 }], duration: 2500 }
+        ],
+        collectibles: [
+            { x: 850, y: 850, type: 'gem' }, // In goal room
+            { x: 50, y: 500, type: 'coin' }, // Left niche
+            { x: 900, y: 100, type: 'coin' }, // Top Right corner
+            { x: 500, y: 900, type: 'heart' }, // Bottom center danger zone
+        ]
     },
     // 40. Castle Master
     {
@@ -1327,7 +1327,7 @@ export const LEVELS: LevelData[] = [
         ],
         movingWalls: [
             // "Wind" Pushers (Vertical Patrols in the lanes)
-            { id: 'm1', x: 100, y: 200, w: 80, h: 50, duration: 2000, path: [{ x: 100, y: 800 }] },
+            // { id: 'm1', x: 100, y: 200, w: 80, h: 50, duration: 2000, path: [{ x: 100, y: 800 }] },
             { id: 'm2', x: 300, y: 800, w: 80, h: 50, duration: 2000, path: [{ x: 300, y: 200 }] },
             { id: 'm3', x: 500, y: 200, w: 80, h: 50, duration: 2000, path: [{ x: 500, y: 800 }] },
             { id: 'm4', x: 700, y: 800, w: 80, h: 50, duration: 2000, path: [{ x: 700, y: 200 }] },
@@ -1508,11 +1508,11 @@ export const LEVELS: LevelData[] = [
         ],
         boom: [
             // The Swarm
-            { id: 'bug1', x: 100, y: 200, w: 20, h: 20, type: 'bug', path: [{ x: 100, y: 500 }, { x: 300, y: 200 }], duration: 1500 },
-            { id: 'bug2', x: 300, y: 500, w: 20, h: 20, type: 'bug', path: [{ x: 500, y: 200 }, { x: 300, y: 500 }], duration: 1500 },
-            { id: 'bug3', x: 500, y: 200, w: 20, h: 20, type: 'bug', path: [{ x: 700, y: 500 }, { x: 500, y: 200 }], duration: 1500 },
-            { id: 'bug4', x: 700, y: 500, w: 20, h: 20, type: 'bug', path: [{ x: 900, y: 200 }, { x: 700, y: 500 }], duration: 1500 },
-            { id: 'bug5', x: 500, y: 800, w: 20, h: 20, type: 'bug', path: [{ x: 900, y: 800 }, { x: 100, y: 800 }], duration: 3000 }
+            { id: 'bug1', x: 100, y: 120, w: 30, h: 30, type: 'bug', path: [{ x: 100, y: 500 }, { x: 300, y: 200 }], duration: 1500 },
+            { id: 'bug2', x: 300, y: 500, w: 30, h: 30, type: 'bug', path: [{ x: 500, y: 200 }, { x: 300, y: 500 }], duration: 1500 },
+            { id: 'bug3', x: 500, y: 200, w: 30, h: 30, type: 'bug', path: [{ x: 700, y: 500 }, { x: 500, y: 200 }], duration: 1500 },
+            { id: 'bug4', x: 700, y: 500, w: 30, h: 30, type: 'bug', path: [{ x: 900, y: 200 }, { x: 700, y: 500 }], duration: 1500 },
+            { id: 'bug5', x: 500, y: 800, w: 30, h: 30, type: 'bug', path: [{ x: 900, y: 800 }, { x: 100, y: 800 }], duration: 3000 }
         ],
         movingWalls: [],
         portals: [
@@ -1562,9 +1562,9 @@ export const LEVELS: LevelData[] = [
         //     { id: 't2', x: 600, y: 575, w: 40, h: 150, duration: 1500, path: [{ x: 600, y: 425 }] }, // Up
         //     { id: 't3', x: 800, y: 425, w: 40, h: 150, duration: 1500, path: [{ x: 800, y: 575 }] }, // Fast Down
         // ],
-        boom: [
-            { id: 'chaser', x: 0, y: 500, w: 20, h: 20, type: 'chase', path: [], duration: 0 } // Tailgater
-        ]
+        // boom: [
+        //     { id: 'chaser', x: 0, y: 500, w: 20, h: 20, type: 'chase', path: [], duration: 0 } // Tailgater
+        // ]
     },
     // 52. Clockwork (Master)
     {
@@ -1742,14 +1742,19 @@ export const LEVELS: LevelData[] = [
         movingWalls: [], // No walls, just bullets
         boom: [
             // Spiral Patterns of Bugs
-            { id: 'b1', x: 200, y: 200, w: 15, h: 15, type: 'bug', path: [{ x: 800, y: 800 }], duration: 2000 },
-            { id: 'b2', x: 800, y: 200, w: 15, h: 15, type: 'bug', path: [{ x: 200, y: 800 }], duration: 2000 },
-            { id: 'b3', x: 200, y: 800, w: 15, h: 15, type: 'bug', path: [{ x: 800, y: 200 }], duration: 2000 },
-            { id: 'b4', x: 800, y: 800, w: 15, h: 15, type: 'bug', path: [{ x: 200, y: 200 }], duration: 2000 },
-            { id: 'b5', x: 500, y: 100, w: 15, h: 15, type: 'bug', path: [{ x: 500, y: 900 }], duration: 1500 }, // Vertical
-            { id: 'b6', x: 100, y: 500, w: 15, h: 15, type: 'bug', path: [{ x: 900, y: 500 }], duration: 1500 }, // Horizontal
-            { id: 'b7', x: 400, y: 400, w: 15, h: 15, type: 'bug', path: [{ x: 600, y: 600 }, { x: 400, y: 600 }, { x: 600, y: 400 }], duration: 1000 } // Center Chaos
-        ]
+            { id: 'b1', x: 200, y: 200, w: 30, h: 30, type: 'bug', path: [{ x: 800, y: 800 }], duration: 2000 },
+            { id: 'b2', x: 800, y: 200, w: 30, h: 30, type: 'bug', path: [{ x: 200, y: 800 }], duration: 2000 },
+            { id: 'b3', x: 200, y: 800, w: 30, h: 30, type: 'bug', path: [{ x: 800, y: 200 }], duration: 2000 },
+            { id: 'b4', x: 800, y: 800, w: 30, h: 30, type: 'bug', path: [{ x: 200, y: 200 }], duration: 2000 },
+            { id: 'b5', x: 500, y: 100, w: 30, h: 30, type: 'bug', path: [{ x: 500, y: 900 }], duration: 1500 }, // Vertical
+            { id: 'b6', x: 100, y: 500, w: 30, h: 30, type: 'bug', path: [{ x: 900, y: 500 }], duration: 1500 }, // Horizontal
+            { id: 'b7', x: 400, y: 400, w: 30, h: 30, type: 'bug', path: [{ x: 600, y: 600 }, { x: 400, y: 600 }, { x: 600, y: 400 }], duration: 1000 }, // Center Chaos
+            { id: 'chaser1', x: 0, y: 500, w: 30, h: 30, type: 'chase', path: [], duration: 0 }, // Tailgater 1
+            { id: 'chaser2', x: 500, y: 250, w: 30, h: 30, type: 'chase', path: [], duration: 0 }, // Tailgater 2
+            { id: 'chaser3', x: 950, y: 500, w: 30, h: 30, type: 'chase', path: [], duration: 0 } // Tailgater 3
+
+        ],
+
     },
     // 58. The Marathon (Master)
     {
@@ -1886,370 +1891,370 @@ export const LEVELS: LevelData[] = [
     },
     // --- WORLD 4: The Lava Cave ---
     // 61. Hot Foot
-    {
-        id: 61,
-        theme: 'lava',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 200, y: 400, w: 600, h: 200 } // Big lava pool in middle
-        ]
-    },
-    // 62. Stepping Stones
-    {
-        id: 62,
-        theme: 'lava',
-        start: { x: 100, y: 900 },
-        goal: { x: 900, y: 100 },
-        timeLimit: 80,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 0, y: 200, w: 1000, h: 600 } // Huge river
-        ],
-        crumblingFloors: [
-            { id: 'c1', x: 200, y: 200, w: 100, h: 600, duration: 2000 }, // Bridge
-            { id: 'c2', x: 500, y: 200, w: 100, h: 600, duration: 1500 },
-            { id: 'c3', x: 800, y: 200, w: 100, h: 600, duration: 1000 }
-        ]
-    },
-    // 63. Obsidian Maze
-    {
-        id: 63,
-        theme: 'lava',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 120,
-        walls: [
-            ...BOUNDARIES,
-            { x: 200, y: 0, w: 50, h: 800 },
-            { x: 500, y: 200, w: 50, h: 800 },
-            { x: 800, y: 0, w: 50, h: 800 }
-        ],
-        hazards: [
-            { x: 250, y: 400, w: 250, h: 50 },
-            { x: 550, y: 600, w: 250, h: 50 }
-        ]
-    },
-    // 64. The Crumble Run
-    {
-        id: 64,
-        theme: 'lava',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 40,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 0, y: 300, w: 1000, h: 400 }
-        ],
-        crumblingFloors: [
-            { id: 'c1', x: 300, y: 300, w: 400, h: 400, duration: 800 }
-        ]
-    },
-    // 65. Lava Flows
-    {
-        id: 65,
-        theme: 'lava',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingWalls: [],
-        hazards: [
-            { x: 200, y: 0, w: 100, h: 1000 },
-            { x: 500, y: 0, w: 100, h: 1000 },
-            { x: 800, y: 0, w: 100, h: 1000 }
-        ],
-        crumblingFloors: [
-            { id: 'safe1', x: 300, y: 450, w: 100, h: 100, duration: 2000 },
-            { id: 'safe2', x: 600, y: 450, w: 100, h: 100, duration: 2000 },
-            { id: 'safe3', x: 900, y: 450, w: 100, h: 100, duration: 2000 }
-        ]
-    },
-    { id: 66, theme: 'lava', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 400, y: 400, w: 200, h: 200 }] },
-    { id: 67, theme: 'lava', start: { x: 900, y: 100 }, goal: { x: 100, y: 900 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 400, w: 600, h: 200 }] },
-    { id: 68, theme: 'lava', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 300, y: 0, w: 400, h: 1000 }], crumblingFloors: [{ id: 'c', x: 300, y: 450, w: 400, h: 100, duration: 1000 }] },
-    { id: 69, theme: 'lava', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 0, y: 400, w: 400, h: 200 }, { x: 600, y: 400, w: 400, h: 200 }] },
-    { id: 70, theme: 'lava', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 0, y: 200, w: 1000, h: 50 }, { x: 0, y: 600, w: 1000, h: 50 }] },
-    { id: 71, theme: 'lava', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 200, w: 50, h: 50 }] },
-    // 72. Precision Challenge: Narrow Lava Corridors
-    {
-        id: 72,
-        theme: 'lava',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 60,
-        walls: [
-            ...BOUNDARIES,
-            { x: 0, y: 400, w: 1000, h: 50 },
-            { x: 0, y: 550, w: 1000, h: 50 }
-        ],
-        hazards: [
-            { x: 0, y: 450, w: 1000, h: 100 }
-        ]
-    },
-    // 73. Precision Challenge: Gem Collection
-    {
-        id: 73,
-        theme: 'lava',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 90,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 200, y: 300, w: 200, h: 50 },
-            { x: 600, y: 500, w: 200, h: 50 },
-            { x: 200, y: 700, w: 200, h: 50 }
-        ],
-        collectibles: [
-            { x: 300, y: 350, type: 'gem' }, { x: 700, y: 550, type: 'gem' }, { x: 300, y: 750, type: 'gem' },
-            { x: 500, y: 450, type: 'gem' }, { x: 500, y: 650, type: 'gem' }
-        ]
-    },
-    // 74. Precision Challenge: Crumbling Floor Parkour
-    {
-        id: 74,
-        theme: 'lava',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 50,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 0, y: 400, w: 1000, h: 200 }
-        ],
-        crumblingFloors: [
-            { id: 'c1', x: 100, y: 400, w: 100, h: 200, duration: 1500 },
-            { id: 'c2', x: 300, y: 400, w: 100, h: 200, duration: 1500 },
-            { id: 'c3', x: 500, y: 400, w: 100, h: 200, duration: 1500 },
-            { id: 'c4', x: 700, y: 400, w: 100, h: 200, duration: 1500 }
-        ]
-    },
-    // 75. Precision Challenge: Moving Platform Jumps
-    {
-        id: 75,
-        theme: 'lava',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 70,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 200, y: 0, w: 600, h: 1000 }
-        ],
-        movingWalls: [
-            { id: 'platform1', x: 200, y: 450, w: 100, h: 100, duration: 3000, path: [{ x: 700, y: 450 }] }
-        ]
-    },
-    // 76. Precision Challenge: Timed Gate Sequence
-    {
-        id: 76,
-        theme: 'lava',
-        start: { x: 100, y: 500 },
-        goal: { x: 900, y: 500 },
-        timeLimit: 80,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 300, y: 0, w: 50, h: 1000 },
-            { x: 650, y: 0, w: 50, h: 1000 }
-        ],
-        gates: [
-            { id: 'g1', x: 300, y: 450, w: 50, h: 100 },
-            { id: 'g2', x: 650, y: 450, w: 50, h: 100 }
-        ],
-        buttons: [
-            { x: 200, y: 500, targetGateId: 'g1' },
-            { x: 550, y: 500, targetGateId: 'g2' }
-        ]
-    },
-    // 77. Precision Challenge: Hazard Maze
-    {
-        id: 77,
-        theme: 'lava',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 90,
-        walls: [
-            ...BOUNDARIES,
-            { x: 300, y: 0, w: 50, h: 700 },
-            { x: 600, y: 300, w: 50, h: 700 }
-        ],
-        hazards: [
-            { x: 350, y: 200, w: 250, h: 50 },
-            { x: 100, y: 500, w: 250, h: 50 },
-            { x: 650, y: 700, w: 250, h: 50 }
-        ]
-    },
-    // 78. Precision Challenge: Rotating Obstacles
-    {
-        id: 78,
-        theme: 'lava',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingWalls: [
-            { id: 'rot1', x: 300, y: 700, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 700 }] },
-            { id: 'rot2', x: 600, y: 500, w: 100, h: 50, duration: 2000, path: [{ x: 300, y: 500 }] },
-            { id: 'rot3', x: 300, y: 300, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 300 }] }
-        ],
-        hazards: [
-            { x: 200, y: 650, w: 600, h: 50 },
-            { x: 200, y: 450, w: 600, h: 50 },
-            { x: 200, y: 250, w: 600, h: 50 }
-        ]
-    },
-    // 79. Precision Challenge: Shrinking Safe Zones
-    {
-        id: 79,
-        theme: 'lava',
-        start: { x: 100, y: 900 },
-        goal: { x: 900, y: 100 },
-        timeLimit: 45,
-        walls: BOUNDARIES,
-        hazards: [
-            { x: 0, y: 0, w: 200, h: 1000 },
-            { x: 800, y: 0, w: 200, h: 1000 },
-            { x: 200, y: 0, w: 600, h: 200 },
-            { x: 200, y: 800, w: 600, h: 200 }
-        ],
-        crumblingFloors: [
-            { id: 'safe1', x: 200, y: 400, w: 600, h: 200, duration: 3000 }
-        ]
-    },
-    // 80. Precision Challenge: Final Gauntlet
-    {
-        id: 80,
-        theme: 'lava',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 100,
-        walls: [
-            ...BOUNDARIES,
-            { x: 300, y: 0, w: 50, h: 1000 },
-            { x: 650, y: 0, w: 50, h: 1000 }
-        ],
-        hazards: [
-            { x: 350, y: 700, w: 300, h: 50 },
-            { x: 350, y: 400, w: 300, h: 50 }
-        ],
-        movingWalls: [
-            { id: 'mw1', x: 350, y: 800, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 800 }] },
-            { id: 'mw2', x: 550, y: 600, w: 100, h: 50, duration: 1500, path: [{ x: 350, y: 600 }] },
-            { id: 'mw3', x: 350, y: 300, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 300 }] }
-        ],
-        crumblingFloors: [
-            { id: 'c1', x: 350, y: 500, w: 300, h: 100, duration: 2000 }
-        ]
-    },
-    // --- WORLD 5: The Dragon's Lair ---
-    // 81. Gold Rush
-    {
-        id: 81,
-        theme: 'lair',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingGoal: {
-            path: [{ x: 900, y: 100 }, { x: 100, y: 100 }],
-            duration: 4000
-        }
-    },
-    // 82. Guarded Treasure
-    {
-        id: 82,
-        theme: 'lair',
-        start: { x: 100, y: 900 },
-        goal: { x: 900, y: 100 },
-        timeLimit: 80,
-        walls: BOUNDARIES,
-        boom: [
-            { id: 'e1', x: 500, y: 400, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 500, y: 600 }] },
-            { id: 'e2', x: 200, y: 200, w: 60, h: 60, type: 'patrol', duration: 3000, path: [{ x: 800, y: 200 }] }
-        ]
-    },
-    // 83. The Chase
-    {
-        id: 83,
-        theme: 'lair',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 60,
-        walls: BOUNDARIES,
-        movingGoal: {
-            path: [{ x: 500, y: 500 }, { x: 800, y: 100 }, { x: 200, y: 100 }],
-            duration: 6000
-        },
-        boom: [
-            { id: 'e1', x: 100, y: 500, w: 60, h: 60, type: 'patrol', duration: 4000, path: [{ x: 900, y: 500 }] }
-        ]
-    },
-    // 84. Treasure Maze
-    {
-        id: 84,
-        theme: 'lair',
-        start: { x: 100, y: 100 },
-        goal: { x: 900, y: 900 },
-        timeLimit: 120,
-        walls: [
-            ...BOUNDARIES,
-            { x: 200, y: 0, w: 50, h: 700 },
-            { x: 500, y: 300, w: 50, h: 700 },
-            { x: 800, y: 0, w: 50, h: 700 }
-        ],
-        boom: [
-            { id: 'e1', x: 350, y: 100, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 350, y: 900 }] },
-            { id: 'e2', x: 650, y: 900, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 650, y: 100 }] }
-        ]
-    },
-    // 85. Winged Feast
-    {
-        id: 85,
-        theme: 'lair',
-        start: { x: 500, y: 500 },
-        goal: { x: 500, y: 200 },
-        timeLimit: 45,
-        walls: BOUNDARIES,
-        movingGoal: {
-            path: [{ x: 200, y: 200 }, { x: 800, y: 800 }, { x: 200, y: 800 }, { x: 800, y: 200 }],
-            duration: 8000
-        }
-    },
-    // Levels 86-100
-    { id: 86, theme: 'lair', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 300, y: 300, w: 50, h: 50, type: 'patrol', duration: 1000, path: [{ x: 700, y: 700 }] }] },
-    { id: 87, theme: 'lair', start: { x: 900, y: 100 }, goal: { x: 100, y: 900 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 100, y: 100 }], duration: 2000 } },
-    { id: 88, theme: 'lair', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 0, w: 100, h: 1000 }], boom: [{ id: 'e1', x: 600, y: 500, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 600, y: 100 }] }] },
-    { id: 89, theme: 'lair', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [{ id: 'm1', x: 200, y: 400, w: 600, h: 50, duration: 3000, path: [{ x: 200, y: 600 }] }], movingGoal: { path: [{ x: 900, y: 100 }], duration: 4000 } },
-    { id: 90, theme: 'lair', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 200, y: 300, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 800, y: 300 }] }, { id: 'e2', x: 800, y: 600, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 200, y: 600 }] }] },
-    { id: 91, theme: 'lair', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 900, y: 100 }], duration: 2000 }, hazards: [{ x: 400, y: 400, w: 200, h: 200 }] },
-    { id: 92, theme: 'lair', start: { x: 500, y: 100 }, goal: { x: 500, y: 900 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 500, y: 400, w: 100, h: 100, type: 'patrol', duration: 1000, path: [{ x: 500, y: 600 }] }] },
-    { id: 93, theme: 'lair', start: { x: 200, y: 200 }, goal: { x: 800, y: 800 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 200, y: 800 }], duration: 5000 } },
-    { id: 94, theme: 'lair', start: { x: 900, y: 900 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 500, y: 500, w: 50, h: 50, type: 'patrol', duration: 500, path: [{ x: 550, y: 550 }] }] },
-    { id: 95, theme: 'lair', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 30, walls: BOUNDARIES, movingGoal: { path: [{ x: 900, y: 100 }, { x: 900, y: 900 }], duration: 3000 } },
-    { id: 96, theme: 'lair', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 200, y: 200, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 200, y: 800 }] }, { id: 'e2', x: 800, y: 800, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 800, y: 200 }] }] },
-    { id: 97, theme: 'lair', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 100, y: 100 }, { x: 900, y: 100 }], duration: 3000 }, hazards: [{ x: 300, y: 300, w: 400, h: 400 }] },
-    { id: 98, theme: 'lair', start: { x: 500, y: 500 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 100, y: 100, w: 50, h: 50, type: 'patrol', duration: 1500, path: [{ x: 900, y: 900 }] }] },
-    { id: 99, theme: 'lair', start: { x: 900, y: 900 }, goal: { x: 100, y: 100 }, timeLimit: 40, walls: BOUNDARIES, movingGoal: { path: [{ x: 800, y: 200 }], duration: 1000 }, boom: [{ id: 'e1', x: 500, y: 500, w: 200, h: 200, type: 'patrol', duration: 5000, path: [{ x: 500, y: 500 }] }] },
-    // 100. THE DRAGON KING
-    {
-        id: 100,
-        theme: 'lair',
-        start: { x: 500, y: 900 },
-        goal: { x: 500, y: 100 },
-        timeLimit: 120,
-        walls: BOUNDARIES,
-        movingGoal: {
-            path: [{ x: 100, y: 100 }, { x: 900, y: 100 }, { x: 500, y: 500 }],
-            duration: 5000
-        },
-        boom: [
-            { id: 'BOSS', x: 500, y: 400, w: 150, h: 150, type: 'patrol', duration: 1500, path: [{ x: 500, y: 600 }] },
-            { id: 'minion1', x: 200, y: 200, w: 50, h: 50, type: 'patrol', duration: 3000, path: [{ x: 200, y: 800 }] },
-            { id: 'minion2', x: 800, y: 200, w: 50, h: 50, type: 'patrol', duration: 3000, path: [{ x: 800, y: 800 }] }
-        ],
-        hazards: [
-            { x: 0, y: 0, w: 100, h: 1000 },
-            { x: 900, y: 0, w: 100, h: 1000 }
-        ]
-    }
+    // {
+    //     id: 61,
+    //     theme: 'lava',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 60,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 200, y: 400, w: 600, h: 200 } // Big lava pool in middle
+    //     ]
+    // },
+    // // 62. Stepping Stones
+    // {
+    //     id: 62,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 900 },
+    //     goal: { x: 900, y: 100 },
+    //     timeLimit: 80,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 0, y: 200, w: 1000, h: 600 } // Huge river
+    //     ],
+    //     crumblingFloors: [
+    //         { id: 'c1', x: 200, y: 200, w: 100, h: 600, duration: 2000 }, // Bridge
+    //         { id: 'c2', x: 500, y: 200, w: 100, h: 600, duration: 1500 },
+    //         { id: 'c3', x: 800, y: 200, w: 100, h: 600, duration: 1000 }
+    //     ]
+    // },
+    // // 63. Obsidian Maze
+    // {
+    //     id: 63,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 100 },
+    //     goal: { x: 900, y: 900 },
+    //     timeLimit: 120,
+    //     walls: [
+    //         ...BOUNDARIES,
+    //         { x: 200, y: 0, w: 50, h: 800 },
+    //         { x: 500, y: 200, w: 50, h: 800 },
+    //         { x: 800, y: 0, w: 50, h: 800 }
+    //     ],
+    //     hazards: [
+    //         { x: 250, y: 400, w: 250, h: 50 },
+    //         { x: 550, y: 600, w: 250, h: 50 }
+    //     ]
+    // },
+    // // 64. The Crumble Run
+    // {
+    //     id: 64,
+    //     theme: 'lava',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 40,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 0, y: 300, w: 1000, h: 400 }
+    //     ],
+    //     crumblingFloors: [
+    //         { id: 'c1', x: 300, y: 300, w: 400, h: 400, duration: 800 }
+    //     ]
+    // },
+    // // 65. Lava Flows
+    // {
+    //     id: 65,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 500 },
+    //     goal: { x: 900, y: 500 },
+    //     timeLimit: 60,
+    //     walls: BOUNDARIES,
+    //     movingWalls: [],
+    //     hazards: [
+    //         { x: 200, y: 0, w: 100, h: 1000 },
+    //         { x: 500, y: 0, w: 100, h: 1000 },
+    //         { x: 800, y: 0, w: 100, h: 1000 }
+    //     ],
+    //     crumblingFloors: [
+    //         { id: 'safe1', x: 300, y: 450, w: 100, h: 100, duration: 2000 },
+    //         { id: 'safe2', x: 600, y: 450, w: 100, h: 100, duration: 2000 },
+    //         { id: 'safe3', x: 900, y: 450, w: 100, h: 100, duration: 2000 }
+    //     ]
+    // },
+    // { id: 66, theme: 'lava', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 400, y: 400, w: 200, h: 200 }] },
+    // { id: 67, theme: 'lava', start: { x: 900, y: 100 }, goal: { x: 100, y: 900 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 400, w: 600, h: 200 }] },
+    // { id: 68, theme: 'lava', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 300, y: 0, w: 400, h: 1000 }], crumblingFloors: [{ id: 'c', x: 300, y: 450, w: 400, h: 100, duration: 1000 }] },
+    // { id: 69, theme: 'lava', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 0, y: 400, w: 400, h: 200 }, { x: 600, y: 400, w: 400, h: 200 }] },
+    // { id: 70, theme: 'lava', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 0, y: 200, w: 1000, h: 50 }, { x: 0, y: 600, w: 1000, h: 50 }] },
+    // { id: 71, theme: 'lava', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 200, w: 50, h: 50 }] },
+    // // 72. Precision Challenge: Narrow Lava Corridors
+    // {
+    //     id: 72,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 500 },
+    //     goal: { x: 900, y: 500 },
+    //     timeLimit: 60,
+    //     walls: [
+    //         ...BOUNDARIES,
+    //         { x: 0, y: 400, w: 1000, h: 50 },
+    //         { x: 0, y: 550, w: 1000, h: 50 }
+    //     ],
+    //     hazards: [
+    //         { x: 0, y: 450, w: 1000, h: 100 }
+    //     ]
+    // },
+    // // 73. Precision Challenge: Gem Collection
+    // {
+    //     id: 73,
+    //     theme: 'lava',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 90,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 200, y: 300, w: 200, h: 50 },
+    //         { x: 600, y: 500, w: 200, h: 50 },
+    //         { x: 200, y: 700, w: 200, h: 50 }
+    //     ],
+    //     collectibles: [
+    //         { x: 300, y: 350, type: 'gem' }, { x: 700, y: 550, type: 'gem' }, { x: 300, y: 750, type: 'gem' },
+    //         { x: 500, y: 450, type: 'gem' }, { x: 500, y: 650, type: 'gem' }
+    //     ]
+    // },
+    // // 74. Precision Challenge: Crumbling Floor Parkour
+    // {
+    //     id: 74,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 100 },
+    //     goal: { x: 900, y: 900 },
+    //     timeLimit: 50,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 0, y: 400, w: 1000, h: 200 }
+    //     ],
+    //     crumblingFloors: [
+    //         { id: 'c1', x: 100, y: 400, w: 100, h: 200, duration: 1500 },
+    //         { id: 'c2', x: 300, y: 400, w: 100, h: 200, duration: 1500 },
+    //         { id: 'c3', x: 500, y: 400, w: 100, h: 200, duration: 1500 },
+    //         { id: 'c4', x: 700, y: 400, w: 100, h: 200, duration: 1500 }
+    //     ]
+    // },
+    // // 75. Precision Challenge: Moving Platform Jumps
+    // {
+    //     id: 75,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 500 },
+    //     goal: { x: 900, y: 500 },
+    //     timeLimit: 70,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 200, y: 0, w: 600, h: 1000 }
+    //     ],
+    //     movingWalls: [
+    //         { id: 'platform1', x: 200, y: 450, w: 100, h: 100, duration: 3000, path: [{ x: 700, y: 450 }] }
+    //     ]
+    // },
+    // // 76. Precision Challenge: Timed Gate Sequence
+    // {
+    //     id: 76,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 500 },
+    //     goal: { x: 900, y: 500 },
+    //     timeLimit: 80,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 300, y: 0, w: 50, h: 1000 },
+    //         { x: 650, y: 0, w: 50, h: 1000 }
+    //     ],
+    //     gates: [
+    //         { id: 'g1', x: 300, y: 450, w: 50, h: 100 },
+    //         { id: 'g2', x: 650, y: 450, w: 50, h: 100 }
+    //     ],
+    //     buttons: [
+    //         { x: 200, y: 500, targetGateId: 'g1' },
+    //         { x: 550, y: 500, targetGateId: 'g2' }
+    //     ]
+    // },
+    // // 77. Precision Challenge: Hazard Maze
+    // {
+    //     id: 77,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 100 },
+    //     goal: { x: 900, y: 900 },
+    //     timeLimit: 90,
+    //     walls: [
+    //         ...BOUNDARIES,
+    //         { x: 300, y: 0, w: 50, h: 700 },
+    //         { x: 600, y: 300, w: 50, h: 700 }
+    //     ],
+    //     hazards: [
+    //         { x: 350, y: 200, w: 250, h: 50 },
+    //         { x: 100, y: 500, w: 250, h: 50 },
+    //         { x: 650, y: 700, w: 250, h: 50 }
+    //     ]
+    // },
+    // // 78. Precision Challenge: Rotating Obstacles
+    // {
+    //     id: 78,
+    //     theme: 'lava',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 60,
+    //     walls: BOUNDARIES,
+    //     movingWalls: [
+    //         { id: 'rot1', x: 300, y: 700, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 700 }] },
+    //         { id: 'rot2', x: 600, y: 500, w: 100, h: 50, duration: 2000, path: [{ x: 300, y: 500 }] },
+    //         { id: 'rot3', x: 300, y: 300, w: 100, h: 50, duration: 2000, path: [{ x: 600, y: 300 }] }
+    //     ],
+    //     hazards: [
+    //         { x: 200, y: 650, w: 600, h: 50 },
+    //         { x: 200, y: 450, w: 600, h: 50 },
+    //         { x: 200, y: 250, w: 600, h: 50 }
+    //     ]
+    // },
+    // // 79. Precision Challenge: Shrinking Safe Zones
+    // {
+    //     id: 79,
+    //     theme: 'lava',
+    //     start: { x: 100, y: 900 },
+    //     goal: { x: 900, y: 100 },
+    //     timeLimit: 45,
+    //     walls: BOUNDARIES,
+    //     hazards: [
+    //         { x: 0, y: 0, w: 200, h: 1000 },
+    //         { x: 800, y: 0, w: 200, h: 1000 },
+    //         { x: 200, y: 0, w: 600, h: 200 },
+    //         { x: 200, y: 800, w: 600, h: 200 }
+    //     ],
+    //     crumblingFloors: [
+    //         { id: 'safe1', x: 200, y: 400, w: 600, h: 200, duration: 3000 }
+    //     ]
+    // },
+    // // 80. Precision Challenge: Final Gauntlet
+    // {
+    //     id: 80,
+    //     theme: 'lava',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 100,
+    //     walls: [
+    //         ...BOUNDARIES,
+    //         { x: 300, y: 0, w: 50, h: 1000 },
+    //         { x: 650, y: 0, w: 50, h: 1000 }
+    //     ],
+    //     hazards: [
+    //         { x: 350, y: 700, w: 300, h: 50 },
+    //         { x: 350, y: 400, w: 300, h: 50 }
+    //     ],
+    //     movingWalls: [
+    //         { id: 'mw1', x: 350, y: 800, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 800 }] },
+    //         { id: 'mw2', x: 550, y: 600, w: 100, h: 50, duration: 1500, path: [{ x: 350, y: 600 }] },
+    //         { id: 'mw3', x: 350, y: 300, w: 100, h: 50, duration: 1500, path: [{ x: 550, y: 300 }] }
+    //     ],
+    //     crumblingFloors: [
+    //         { id: 'c1', x: 350, y: 500, w: 300, h: 100, duration: 2000 }
+    //     ]
+    // },
+    // // --- WORLD 5: The Dragon's Lair ---
+    // // 81. Gold Rush
+    // {
+    //     id: 81,
+    //     theme: 'lair',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 60,
+    //     walls: BOUNDARIES,
+    //     movingGoal: {
+    //         path: [{ x: 900, y: 100 }, { x: 100, y: 100 }],
+    //         duration: 4000
+    //     }
+    // },
+    // // 82. Guarded Treasure
+    // {
+    //     id: 82,
+    //     theme: 'lair',
+    //     start: { x: 100, y: 900 },
+    //     goal: { x: 900, y: 100 },
+    //     timeLimit: 80,
+    //     walls: BOUNDARIES,
+    //     boom: [
+    //         { id: 'e1', x: 500, y: 400, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 500, y: 600 }] },
+    //         { id: 'e2', x: 200, y: 200, w: 60, h: 60, type: 'patrol', duration: 3000, path: [{ x: 800, y: 200 }] }
+    //     ]
+    // },
+    // // 83. The Chase
+    // {
+    //     id: 83,
+    //     theme: 'lair',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 60,
+    //     walls: BOUNDARIES,
+    //     movingGoal: {
+    //         path: [{ x: 500, y: 500 }, { x: 800, y: 100 }, { x: 200, y: 100 }],
+    //         duration: 6000
+    //     },
+    //     boom: [
+    //         { id: 'e1', x: 100, y: 500, w: 60, h: 60, type: 'patrol', duration: 4000, path: [{ x: 900, y: 500 }] }
+    //     ]
+    // },
+    // // 84. Treasure Maze
+    // {
+    //     id: 84,
+    //     theme: 'lair',
+    //     start: { x: 100, y: 100 },
+    //     goal: { x: 900, y: 900 },
+    //     timeLimit: 120,
+    //     walls: [
+    //         ...BOUNDARIES,
+    //         { x: 200, y: 0, w: 50, h: 700 },
+    //         { x: 500, y: 300, w: 50, h: 700 },
+    //         { x: 800, y: 0, w: 50, h: 700 }
+    //     ],
+    //     boom: [
+    //         { id: 'e1', x: 350, y: 100, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 350, y: 900 }] },
+    //         { id: 'e2', x: 650, y: 900, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 650, y: 100 }] }
+    //     ]
+    // },
+    // // 85. Winged Feast
+    // {
+    //     id: 85,
+    //     theme: 'lair',
+    //     start: { x: 500, y: 500 },
+    //     goal: { x: 500, y: 200 },
+    //     timeLimit: 45,
+    //     walls: BOUNDARIES,
+    //     movingGoal: {
+    //         path: [{ x: 200, y: 200 }, { x: 800, y: 800 }, { x: 200, y: 800 }, { x: 800, y: 200 }],
+    //         duration: 8000
+    //     }
+    // },
+    // // Levels 86-100
+    // { id: 86, theme: 'lair', start: { x: 100, y: 900 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 300, y: 300, w: 50, h: 50, type: 'patrol', duration: 1000, path: [{ x: 700, y: 700 }] }] },
+    // { id: 87, theme: 'lair', start: { x: 900, y: 100 }, goal: { x: 100, y: 900 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 100, y: 100 }], duration: 2000 } },
+    // { id: 88, theme: 'lair', start: { x: 500, y: 500 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, hazards: [{ x: 200, y: 0, w: 100, h: 1000 }], boom: [{ id: 'e1', x: 600, y: 500, w: 60, h: 60, type: 'patrol', duration: 2000, path: [{ x: 600, y: 100 }] }] },
+    // { id: 89, theme: 'lair', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, movingWalls: [{ id: 'm1', x: 200, y: 400, w: 600, h: 50, duration: 3000, path: [{ x: 200, y: 600 }] }], movingGoal: { path: [{ x: 900, y: 100 }], duration: 4000 } },
+    // { id: 90, theme: 'lair', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 200, y: 300, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 800, y: 300 }] }, { id: 'e2', x: 800, y: 600, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 200, y: 600 }] }] },
+    // { id: 91, theme: 'lair', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 900, y: 100 }], duration: 2000 }, hazards: [{ x: 400, y: 400, w: 200, h: 200 }] },
+    // { id: 92, theme: 'lair', start: { x: 500, y: 100 }, goal: { x: 500, y: 900 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 500, y: 400, w: 100, h: 100, type: 'patrol', duration: 1000, path: [{ x: 500, y: 600 }] }] },
+    // { id: 93, theme: 'lair', start: { x: 200, y: 200 }, goal: { x: 800, y: 800 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 200, y: 800 }], duration: 5000 } },
+    // { id: 94, theme: 'lair', start: { x: 900, y: 900 }, goal: { x: 100, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 500, y: 500, w: 50, h: 50, type: 'patrol', duration: 500, path: [{ x: 550, y: 550 }] }] },
+    // { id: 95, theme: 'lair', start: { x: 100, y: 500 }, goal: { x: 900, y: 500 }, timeLimit: 30, walls: BOUNDARIES, movingGoal: { path: [{ x: 900, y: 100 }, { x: 900, y: 900 }], duration: 3000 } },
+    // { id: 96, theme: 'lair', start: { x: 100, y: 100 }, goal: { x: 900, y: 900 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 200, y: 200, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 200, y: 800 }] }, { id: 'e2', x: 800, y: 800, w: 50, h: 50, type: 'patrol', duration: 2000, path: [{ x: 800, y: 200 }] }] },
+    // { id: 97, theme: 'lair', start: { x: 500, y: 900 }, goal: { x: 500, y: 100 }, timeLimit: 60, walls: BOUNDARIES, movingGoal: { path: [{ x: 100, y: 100 }, { x: 900, y: 100 }], duration: 3000 }, hazards: [{ x: 300, y: 300, w: 400, h: 400 }] },
+    // { id: 98, theme: 'lair', start: { x: 500, y: 500 }, goal: { x: 900, y: 100 }, timeLimit: 60, walls: BOUNDARIES, boom: [{ id: 'e1', x: 100, y: 100, w: 50, h: 50, type: 'patrol', duration: 1500, path: [{ x: 900, y: 900 }] }] },
+    // { id: 99, theme: 'lair', start: { x: 900, y: 900 }, goal: { x: 100, y: 100 }, timeLimit: 40, walls: BOUNDARIES, movingGoal: { path: [{ x: 800, y: 200 }], duration: 1000 }, boom: [{ id: 'e1', x: 500, y: 500, w: 200, h: 200, type: 'patrol', duration: 5000, path: [{ x: 500, y: 500 }] }] },
+    // // 100. THE DRAGON KING
+    // {
+    //     id: 100,
+    //     theme: 'lair',
+    //     start: { x: 500, y: 900 },
+    //     goal: { x: 500, y: 100 },
+    //     timeLimit: 120,
+    //     walls: BOUNDARIES,
+    //     movingGoal: {
+    //         path: [{ x: 100, y: 100 }, { x: 900, y: 100 }, { x: 500, y: 500 }],
+    //         duration: 5000
+    //     },
+    //     boom: [
+    //         { id: 'BOSS', x: 500, y: 400, w: 150, h: 150, type: 'patrol', duration: 1500, path: [{ x: 500, y: 600 }] },
+    //         { id: 'minion1', x: 200, y: 200, w: 50, h: 50, type: 'patrol', duration: 3000, path: [{ x: 200, y: 800 }] },
+    //         { id: 'minion2', x: 800, y: 200, w: 50, h: 50, type: 'patrol', duration: 3000, path: [{ x: 800, y: 800 }] }
+    //     ],
+    //     hazards: [
+    //         { x: 0, y: 0, w: 100, h: 1000 },
+    //         { x: 900, y: 0, w: 100, h: 1000 }
+    //     ]
+    // }
 ];

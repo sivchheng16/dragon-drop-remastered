@@ -242,6 +242,34 @@ button:hover {
     color: #eee;
 }
 
+.continue-message {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    margin-bottom: 2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #FFD700;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    }
+
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+    }
+}
+
 .world-tabs {
     display: flex;
     gap: 1rem;
@@ -266,6 +294,10 @@ button:hover {
     grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     max-width: 600px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    margin-bottom: 2rem;
 }
 
 .level-btn {
@@ -277,12 +309,51 @@ button:hover {
     font-size: 1.2rem;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
 }
 
 .level-btn.locked {
     opacity: 0.3;
     pointer-events: none;
     background: #222;
+}
+
+.level-btn.next-level {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 165, 0, 0.3) 100%);
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: nextLevelPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes nextLevelPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        transform: scale(1.05);
+    }
+}
+
+.next-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #FFD700;
+    color: #0a0a0a;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6);
 }
 
 .level-btn:hover:not(.locked) {
@@ -292,8 +363,14 @@ button:hover {
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
 }
 
+.selector-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
 .btn-back {
-    margin-top: 3rem;
+    margin-top: 0;
 }
 
 /* Result Screens */

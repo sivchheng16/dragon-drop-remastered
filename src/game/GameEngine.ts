@@ -1665,10 +1665,13 @@ export class GameEngine {
             }
         }
 
-        // Goal (Food)
+        // Goal (Food) with Premium Beacon Animation
         const goalSize = 80;
         let goalRenderX = this.level.goal.x;
         let goalRenderY = this.level.goal.y;
+
+        // Floating animation (gentle bob up and down)
+        const floatOffset = Math.sin(this.gameTime / 500) * 3; // 3px up/down over 1 second
 
         if (this.state.movingGoal) {
             goalRenderX = this.state.movingGoal.currentPos.x;
@@ -1677,10 +1680,40 @@ export class GameEngine {
             // Draw Wings
             const wingWidth = 120;
             const wingHeight = 60;
-            this.ctx.drawImage(this.assets.wings, goalRenderX - 20, goalRenderY - 10, wingWidth, wingHeight);
+            this.ctx.drawImage(this.assets.wings, goalRenderX - 20, goalRenderY - 10 + floatOffset, wingWidth, wingHeight);
         }
 
-        this.ctx.drawImage(this.assets.food, goalRenderX - goalSize / 2, goalRenderY - goalSize / 2, goalSize, goalSize);
+        // Pulsing glow effect
+        const pulseTime = Date.now() / 1000; // Time in seconds
+        const glowIntensity = 20 + Math.sin(pulseTime * 2) * 10; // Pulsing from 10 to 30
+        const glowRadius = 50 + Math.sin(pulseTime * 2) * 15; // Expanding circle
+
+        this.ctx.save();
+        // Draw pulsing glow ring
+        const glowGradient = this.ctx.createRadialGradient(
+            goalRenderX,
+            goalRenderY + floatOffset,
+            0,
+            goalRenderX,
+            goalRenderY + floatOffset,
+            glowRadius
+        );
+        glowGradient.addColorStop(0, `rgba(255, 215, 0, ${glowIntensity / 100})`); // Gold center
+        glowGradient.addColorStop(0.5, `rgba(255, 215, 0, ${glowIntensity / 200})`);
+        glowGradient.addColorStop(1, 'rgba(255, 215, 0, 0)'); // Fade out
+
+        this.ctx.fillStyle = glowGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(goalRenderX, goalRenderY + floatOffset, glowRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Draw the goal/steak with floating animation
+        this.ctx.shadowColor = '#FFD700';
+        this.ctx.shadowBlur = glowIntensity;
+        this.ctx.drawImage(this.assets.food, goalRenderX - goalSize / 2, goalRenderY - goalSize / 2 + floatOffset, goalSize, goalSize);
+        this.ctx.shadowBlur = 0;
+
+        this.ctx.restore();
 
         // Collectibles
         if (this.state.collectibles) {

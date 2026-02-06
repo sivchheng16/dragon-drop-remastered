@@ -1,9 +1,9 @@
 {
-  "name": "dragon-drop-remastered",
+  "name": "dragon-drop",
   "private": true,
   "description": "Dragon Drop Desktop App",
   "author": "Antigravity",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {

@@ -11,6 +11,7 @@ import { AchievementNotification } from './components/AchievementNotification';
 import { AchievementManager, Achievement } from './game/AchievementManager';
 import { SettingsMenu } from './components/SettingsMenu';
 import { AboutModal } from './ui/AboutModal';
+import { GameCompletionScreen } from './ui/GameCompletionScreen';
 import { SessionManager } from './game/SessionManager';
 import { SettingsManager } from './game/SettingsManager';
 import './assets/styles/index.css';
@@ -19,29 +20,62 @@ function App() {
     const [isLoading, setIsLoading] = useState(true);
     const [loadingProgress, setLoadingProgress] = useState(0);
 
-    const [gameState, setGameState] = useState<GameState>({
-        status: 'MENU',
-        score: 0,
-        lives: 5,
-        currentLevelIdx: 1,
-        timeLeft: 100,
-        stars: 0,
-        gates: [],
-        buttons: [],
-        movingWalls: [],
-        crumblingFloors: [],
-        boom: [],
-        collectibles: [],
-        coinsCollected: 0,
-        gemsCollected: 0,
-        activePowerUps: [],
-        combo: { count: 0, timer: 0, multiplier: 1 }
-    });
+    // Determine initial state based on user progress
+    const getInitialGameState = (): GameState => {
+        const saved = localStorage.getItem('dragon_drop_completed_levels');
+        const completedLevels = saved ? JSON.parse(saved) : [];
+        const lastPlayedLevel = localStorage.getItem('dragon_drop_last_played_level');
+
+        // New user: no progress
+        if (completedLevels.length === 0 && !lastPlayedLevel) {
+            return {
+                status: 'MENU',
+                score: 0,
+                lives: 5,
+                currentLevelIdx: 1,
+                timeLeft: 100,
+                stars: 0,
+                gates: [],
+                buttons: [],
+                movingWalls: [],
+                crumblingFloors: [],
+                boom: [],
+                collectibles: [],
+                coinsCollected: 0,
+                gemsCollected: 0,
+                activePowerUps: [],
+                combo: { count: 0, timer: 0, multiplier: 1 }
+            };
+        }
+
+        // Returning user: has progress - skip to level selector
+        return {
+            status: 'LEVEL_SELECT',
+            score: 0,
+            lives: 5,
+            currentLevelIdx: 1,
+            timeLeft: 100,
+            stars: 0,
+            gates: [],
+            buttons: [],
+            movingWalls: [],
+            crumblingFloors: [],
+            boom: [],
+            collectibles: [],
+            coinsCollected: 0,
+            gemsCollected: 0,
+            activePowerUps: [],
+            combo: { count: 0, timer: 0, multiplier: 1 }
+        };
+    };
+
+    const [gameState, setGameState] = useState<GameState>(getInitialGameState());
 
     const [showTutorial, setShowTutorial] = useState(false);
     const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
     const [showSettings, setShowSettings] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
+    const [showGameComplete, setShowGameComplete] = useState(false);
 
     // Initialize achievement manager
     useEffect(() => {
@@ -122,6 +156,9 @@ function App() {
     }, [completedLevels]);
 
     const startGame = (levelId: number = 1, resetScore: boolean = false) => {
+        // Remember last played level
+        localStorage.setItem('dragon_drop_last_played_level', levelId.toString());
+
         setGameState(prev => ({
             status: 'PLAYING',
             score: resetScore ? 0 : prev.score, // Reset score for new game, preserve for level progression
@@ -227,9 +264,11 @@ function App() {
                     gameState={gameState}
                     onNextLevel={() => {
                         handleLevelComplete(gameState.currentLevelIdx);
-                        if (gameState.currentLevelIdx < 100) {
+                        if (gameState.currentLevelIdx < 60) {
                             startGame(gameState.currentLevelIdx + 1, true);
                         } else {
+                            // All 60 levels completed!
+                            setShowGameComplete(true);
                             setGameState(prev => ({ ...prev, status: 'MENU' }));
                         }
                     }}
@@ -242,6 +281,17 @@ function App() {
 
             {/* About Modal */}
             {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+
+            {/* Game Completion Screen */}
+            {showGameComplete && (
+                <GameCompletionScreen
+                    onBackToMenu={() => setShowGameComplete(false)}
+                    onResetAndReplay={() => {
+                        setShowGameComplete(false);
+                        startGame(1, true);
+                    }}
+                />
+            )}
 
             {/* Achievement Notification */}
             <AchievementNotification
