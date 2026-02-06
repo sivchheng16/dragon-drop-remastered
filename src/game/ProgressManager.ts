@@ -1,24 +1,27 @@
+// Progress Manager for Dragon Drop Remastered
+// Tracks level completion, stars, deaths, and hints
+
 export interface LevelProgress {
-    levelId: number;
-    stars: number; // 0, 1, 2, 3
-    highScore: number;
-    unlocked: boolean;
+    completed: boolean;
+    stars: number;
+    bestTime: number;
+    deaths: number; // Track deaths per level
+    skipped: boolean; // Track if level was skipped
 }
 
-export interface PlayerProgress {
-    levels: Record<number, LevelProgress>;
-    totalStars: number;
-    currentLevelId: number;
-}
-
-const STORAGE_KEY = 'dragon_drop_progress_v1';
+const STORAGE_KEY = 'dragon_drop_progress_v2';
+const STATS_KEY = 'dragon_drop_stats_v1';
 
 export class ProgressManager {
     private static instance: ProgressManager;
-    private progress: PlayerProgress;
+    private progress: Map<number, LevelProgress> = new Map();
+    private totalDeaths: number = 0;
+    private totalCoins: number = 0;
+    private totalGems: number = 0;
+    private totalHearts: number = 0;
 
     private constructor() {
-        this.progress = this.load();
+        this.loadProgress();
     }
 
     public static getInstance(): ProgressManager {
@@ -28,78 +31,152 @@ export class ProgressManager {
         return ProgressManager.instance;
     }
 
-    private load(): PlayerProgress {
+    private loadProgress() {
         try {
-            const data = localStorage.getItem(STORAGE_KEY);
-            if (data) {
-                return JSON.parse(data);
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                this.progress = new Map(Object.entries(data).map(([k, v]) => [parseInt(k), v as LevelProgress]));
+            }
+
+            const stats = localStorage.getItem(STATS_KEY);
+            if (stats) {
+                const data = JSON.parse(stats);
+                this.totalDeaths = data.totalDeaths || 0;
+                this.totalCoins = data.totalCoins || 0;
+                this.totalGems = data.totalGems || 0;
+                this.totalHearts = data.totalHearts || 0;
             }
         } catch (e) {
             console.error('Failed to load progress', e);
         }
-
-        // Default state
-        return {
-            levels: {
-                1: { levelId: 1, stars: 0, highScore: 0, unlocked: true }
-            },
-            totalStars: 0,
-            currentLevelId: 1
-        };
     }
 
-    public save() {
+    private saveProgress() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(this.progress));
+            const data: Record<number, LevelProgress> = {};
+            this.progress.forEach((value, key) => {
+                data[key] = value;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            // Save stats
+            localStorage.setItem(STATS_KEY, JSON.stringify({
+                totalDeaths: this.totalDeaths,
+                totalCoins: this.totalCoins,
+                totalGems: this.totalGems,
+                totalHearts: this.totalHearts
+            }));
         } catch (e) {
             console.error('Failed to save progress', e);
         }
     }
 
-    public completeLevel(levelId: number, score: number, stars: number) {
-        if (!this.progress.levels[levelId]) {
-            this.progress.levels[levelId] = { levelId, stars: 0, highScore: 0, unlocked: true };
-        }
+    public completeLevel(levelId: number, stars: number, time: number) {
+        const existing = this.progress.get(levelId);
 
-        const levelStats = this.progress.levels[levelId];
+        this.progress.set(levelId, {
+            completed: true,
+            stars: Math.max(stars, existing?.stars || 0),
+            bestTime: existing ? Math.min(time, existing.bestTime) : time,
+            deaths: existing?.deaths || 0,
+            skipped: false
+        });
 
-        // Update high score/stars only if better
-        if (score > levelStats.highScore) levelStats.highScore = score;
-        if (stars > levelStats.stars) levelStats.stars = stars;
-
-        this.progress.currentLevelId = levelId;
-
-        // Unlock next level
-        const nextLevelId = levelId + 1;
-        if (!this.progress.levels[nextLevelId]) {
-            this.progress.levels[nextLevelId] = {
-                levelId: nextLevelId,
-                stars: 0,
-                highScore: 0,
-                unlocked: true
-            };
-        }
-
-        this.recalculateTotalStars();
-        this.save();
+        this.saveProgress();
     }
 
-    private recalculateTotalStars() {
-        this.progress.totalStars = Object.values(this.progress.levels).reduce((acc, lvl) => acc + lvl.stars, 0);
+    public recordDeath(levelId: number): boolean {
+        const existing = this.progress.get(levelId) || {
+            completed: false,
+            stars: 0,
+            bestTime: 0,
+            deaths: 0,
+            skipped: false
+        };
+
+        existing.deaths += 1;
+        this.totalDeaths += 1;
+        this.progress.set(levelId, existing);
+        this.saveProgress();
+
+        // Return true if skip is now available (5+ deaths)
+        return existing.deaths >= 5;
     }
 
-    public getLevelProgress(levelId: number): LevelProgress | null {
-        return this.progress.levels[levelId] || null;
+    public getDeathCount(levelId: number): number {
+        return this.progress.get(levelId)?.deaths || 0;
     }
 
-    public isLevelUnlocked(levelId: number): boolean {
-        // Level 1 always unlocked
-        if (levelId === 1) return true;
-        return !!this.progress.levels[levelId]?.unlocked;
+    public shouldShowHint(levelId: number): boolean {
+        const deaths = this.getDeathCount(levelId);
+        return deaths >= 3 && deaths % 3 === 0; // Show hint every 3 deaths after first 3
+    }
+
+    public skipLevel(levelId: number) {
+        this.progress.set(levelId, {
+            completed: false,
+            stars: 0,
+            bestTime: 0,
+            deaths: this.progress.get(levelId)?.deaths || 0,
+            skipped: true
+        });
+        this.saveProgress();
+    }
+
+    public getLevelProgress(levelId: number): LevelProgress | undefined {
+        return this.progress.get(levelId);
+    }
+
+    public isLevelCompleted(levelId: number): boolean {
+        return this.progress.get(levelId)?.completed || false;
+    }
+
+    public isLevelSkipped(levelId: number): boolean {
+        return this.progress.get(levelId)?.skipped || false;
+    }
+
+    public getTotalDeaths(): number {
+        return this.totalDeaths;
+    }
+
+    public addCoins(count: number) {
+        this.totalCoins += count;
+        this.saveProgress();
+    }
+
+    public addGems(count: number) {
+        this.totalGems += count;
+        this.saveProgress();
+    }
+
+    public addHearts(count: number) {
+        this.totalHearts += count;
+        this.saveProgress();
+    }
+
+    public getTotalCoins(): number {
+        return this.totalCoins;
+    }
+
+    public getTotalGems(): number {
+        return this.totalGems;
+    }
+
+    public getTotalHearts(): number {
+        return this.totalHearts;
+    }
+
+    public getAllProgress(): Map<number, LevelProgress> {
+        return new Map(this.progress);
     }
 
     public resetProgress() {
-        localStorage.removeItem(STORAGE_KEY);
-        this.progress = this.load();
+        this.progress.clear();
+        this.totalDeaths = 0;
+        this.totalCoins = 0;
+        this.totalGems = 0;
+        this.totalHearts = 0;
+        this.saveProgress();
     }
 }

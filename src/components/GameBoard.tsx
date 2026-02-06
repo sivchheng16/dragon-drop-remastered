@@ -36,12 +36,14 @@ export const GameBoard = ({ gameState, onStateChange }: GameBoardProps) => {
 
     return (
         <div className="game-board-container" style={{
-            width: '100vw',
-            height: '100vh',
+            flex: 1, // Fill remaining space
+            width: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#333'
+            backgroundColor: '#333',
+            overflow: 'hidden',
+            padding: '0px 20px',
         }}>
             {/* Aspect Ratio Container (Square-ish 1:1 or 4:3? logic is 1000x1000) */}
             <canvas

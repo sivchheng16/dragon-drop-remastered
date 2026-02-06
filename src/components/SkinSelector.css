@@ -1,0 +1,121 @@
+.skin-selector-overlay {
+    z-index: 100;
+}
+
+.skin-selector-container {
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 900px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.skin-selector-container h1 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #FFD700;
+    text-align: center;
+}
+
+.unlock-progress {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+}
+
+.skins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.skin-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.skin-card:hover:not(.locked) {
+    transform: translateY(-5px);
+    border-color: #FFD700;
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.skin-card.selected {
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.skin-card.locked {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.skin-preview {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.selected-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #FFD700;
+    color: #000;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.lock-icon {
+    font-size: 48px;
+    opacity: 0.5;
+}
+
+.skin-info {
+    text-align: center;
+}
+
+.skin-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.skin-description {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 0.5rem;
+}
+
+.unlock-condition {
+    font-size: 0.85rem;
+    color: #FFD700;
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+.btn-close {
+    width: 100%;
+    margin-top: 1rem;
+}

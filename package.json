@@ -1,14 +1,15 @@
 {
-  "name": "dragon-drop-remastered",
+  "name": "dragon-drop",
   "private": true,
-  "description": "Dragon Drop Remastered Desktop App",
+  "description": "Dragon Drop Desktop App",
   "author": "Antigravity",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "npx tsc && vite build && electron-builder",
+    "build:linux": "electron-builder --linux",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,7 +18,7 @@
   },
   "build": {
     "appId": "com.antigravity.dragondrop",
-    "productName": "Dragon Drop Remastered",
+    "productName": "Dragon Drop",
     "directories": {
       "output": "release"
     },

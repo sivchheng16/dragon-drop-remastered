@@ -1,0 +1,312 @@
+.game-completion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: auto;
+    padding: 20px;
+}
+
+.completion-card {
+    background: rgba(20, 20, 20, 0.98);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.1);
+    position: relative;
+}
+
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    border-radius: 20px;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confetti-fall 3s linear infinite;
+}
+
+@keyframes confetti-fall {
+    to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.completion-title {
+    font-size: 42px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.completion-subtitle {
+    font-size: 20px;
+    text-align: center;
+    color: #ddd;
+    margin-bottom: 30px;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 215, 0, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.stat-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #FFD700;
+}
+
+.level-progress-section {
+    margin: 30px 0;
+}
+
+.level-progress-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    padding-bottom: 10px;
+}
+
+.level-progress-list {
+    max-height: 300px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.level-stat-row {
+    display: grid;
+    grid-template-columns: 70px 90px 70px 70px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.level-stat-row:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+.level-number {
+    font-weight: 600;
+    color: #FFD700;
+}
+
+.level-stars {
+    display: flex;
+    gap: 2px;
+}
+
+.star-filled {
+    color: #FFD700;
+    font-size: 16px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.star-empty {
+    color: #444;
+    font-size: 16px;
+}
+
+.level-time {
+    font-family: 'Courier New', monospace;
+    color: #aaa;
+    font-size: 13px;
+}
+
+.level-deaths {
+    color: #aaa;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.completion-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn-menu,
+.btn-reset {
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.btn-menu:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+}
+
+.btn-reset {
+    background: rgba(255, 69, 0, 0.2);
+    border: 2px solid rgba(255, 69, 0, 0.3);
+    color: #fff;
+}
+
+.btn-reset:hover {
+    background: rgba(255, 69, 0, 0.3);
+    border-color: rgba(255, 69, 0, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 69, 0, 0.4);
+}
+
+.completion-timestamp {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* Scrollbar styling */
+.level-progress-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.level-progress-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.level-progress-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+}
+
+.level-progress-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 215, 0, 0.5);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .completion-card {
+        padding: 30px 20px;
+    }
+
+    .completion-title {
+        font-size: 32px;
+    }
+
+    .completion-subtitle {
+        font-size: 16px;
+    }
+
+    .stats-summary {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 10px;
+    }
+
+    .stat-item {
+        padding: 15px 10px;
+    }
+
+    .stat-icon {
+        font-size: 28px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .level-stat-row {
+        grid-template-columns: 60px 80px 60px 60px;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .completion-buttons {
+        flex-direction: column;
+    }
+
+    .btn-menu,
+    .btn-reset {
+        width: 100%;
+    }
+}
