@@ -1,61 +1,45 @@
 "use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
+const createWindow = () => {
+    // Create the browser window.
+    const mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.cjs'),
+        },
+    });
+    // clearly separate dev and production loading
+    if (process.env.VITE_DEV_SERVER_URL) {
+        mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+    }
+    else {
+        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    }
+    // Open the DevTools in development.
+    if (process.env.VITE_DEV_SERVER_URL) {
+        mainWindow.webContents.openDevTools();
+    }
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-
-// electron/main.ts
-var import_electron = require("electron");
-var import_node_path = __toESM(require("node:path"), 1);
-process.env.DIST = import_node_path.default.join(__dirname, "../dist");
-process.env.VITE_PUBLIC = import_electron.app.isPackaged ? process.env.DIST : import_node_path.default.join(__dirname, "../public");
-var win;
-var VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-function createWindow() {
-  win = new import_electron.BrowserWindow({
-    icon: import_node_path.default.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
-    webPreferences: {
-      preload: import_node_path.default.join(__dirname, "preload.cjs")
-    },
-    fullscreen: true,
-    // Kiosk mode by default
-    autoHideMenuBar: true
-  });
-  win.webContents.on("did-finish-load", () => {
-    win?.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(import_node_path.default.join(process.env.DIST, "index.html"));
-  }
-}
-import_electron.app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    import_electron.app.quit();
-  }
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', createWindow);
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
-import_electron.app.on("activate", () => {
-  if (import_electron.BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+app.on('activate', () => {
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+    }
 });
-import_electron.app.whenReady().then(createWindow);
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and import them here.

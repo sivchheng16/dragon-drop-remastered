@@ -30,3 +30,4 @@ build_log.txt
 # Tool directories
 .agent/
 .gemini/
+agent/

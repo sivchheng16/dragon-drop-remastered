@@ -1,20 +1,152 @@
-body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+    overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
+}
 
-/* Overlays */
+/* High Contrast Mode */
+body.high-contrast {
+    background: #000000 !important;
+    color: #FFFF00 !important;
+}
+
+body.high-contrast * {
+    transition: none !important;
+    /* Disable transitions for sharper feel */
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+body.high-contrast button {
+    background: #000000 !important;
+    border: 3px solid #FFFF00 !important;
+    color: #FFFF00 !important;
+    font-weight: bold;
+}
+
+body.high-contrast button:hover {
+    background: #FFFF00 !important;
+    color: #000000 !important;
+}
+
+body.high-contrast .overlay {
+    background: rgba(0, 0, 0, 0.95) !important;
+    backdrop-filter: none !important;
+}
+
+body.high-contrast .tutorial-card,
+body.high-contrast .settings-container,
+body.high-contrast .level-btn {
+    background: #000000 !important;
+    border: 2px solid #FFFFFF !important;
+    color: #FFFFFF !important;
+}
+
+body.high-contrast h1,
+body.high-contrast h2,
+body.high-contrast .setting-label {
+    color: #FFFF00 !important;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Overlays with Glassmorphism */
 .overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: white;
     z-index: 10;
+    animation: fadeIn 0.3s ease-out;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Tutorial Card with Enhanced Glassmorphism */
+.tutorial-overlay .tutorial-card {
+    background: linear-gradient(135deg, rgba(30, 30, 40, 0.95) 0%, rgba(20, 20, 30, 0.9) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    border-radius: 24px;
+    padding: 3rem 4rem;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(255, 215, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    max-width: 600px;
+    text-align: center;
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.tutorial-overlay h1 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+    }
+}
+
+.tutorial-content {
+    margin-bottom: 2rem;
+}
+
+.tutorial-content p {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+}
+
 
 /* Main Menu */
 .main-menu .title {
@@ -41,32 +173,59 @@ body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: '
 }
 
 button {
-    background: none;
-    border: 2px solid rgba(255,255,255,0.2);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     color: white;
     padding: 1rem 2rem;
     font-size: 1.2rem;
     cursor: pointer;
-    transition: all 0.2s;
-    font-weight: bold;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 button:hover {
-    background: white;
-    color: black;
-    border-color: white;
-    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+    color: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary {
     border-color: #FFD700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
     color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 .btn-primary:hover {
-    background: #FFD700;
-    color: black;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #0a0a0a;
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5);
+    transform: translateY(-3px);
 }
 
 .version {
@@ -81,6 +240,34 @@ button:hover {
     font-size: 3rem;
     margin-bottom: 2rem;
     color: #eee;
+}
+
+.continue-message {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    margin-bottom: 2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #FFD700;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    }
+
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+    }
 }
 
 .world-tabs {
@@ -107,6 +294,10 @@ button:hover {
     grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     max-width: 600px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    margin-bottom: 2rem;
 }
 
 .level-btn {
@@ -116,8 +307,9 @@ button:hover {
     justify-content: center;
     align-items: center;
     font-size: 1.2rem;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
 }
 
 .level-btn.locked {
@@ -126,13 +318,59 @@ button:hover {
     background: #222;
 }
 
-.level-btn:hover:not(.locked) {
+.level-btn.next-level {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 165, 0, 0.3) 100%);
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: nextLevelPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes nextLevelPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        transform: scale(1.05);
+    }
+}
+
+.next-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
     background: #FFD700;
-    color: black;
+    color: #0a0a0a;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6);
+}
+
+.level-btn:hover:not(.locked) {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #0a0a0a;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.selector-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
 .btn-back {
-    margin-top: 3rem;
+    margin-top: 0;
 }
 
 /* Result Screens */
@@ -141,11 +379,95 @@ button:hover {
     margin-bottom: 1rem;
 }
 
-.win h1 { color: #FFD700; }
-.game-over h1 { color: #FF4500; }
+.win h1 {
+    color: #FFD700;
+}
+
+.game-over h1 {
+    color: #FF4500;
+}
 
 .stars {
     font-size: 4rem;
     color: #FFD700;
     margin-bottom: 2rem;
+}
+
+/* Star Animations */
+@keyframes starBounce {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.3) rotate(180deg);
+    }
+
+    70% {
+        transform: scale(0.9) rotate(360deg);
+    }
+
+    100% {
+        transform: scale(1.2) rotate(360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes starPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes starGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 10px #FFD700);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 30px #FFD700) drop-shadow(0 0 40px #FFA500);
+    }
+}
+
+/* Nav Back Button Styling - Override global button behavior */
+.btn-back-to-levels,
+.btn-back-to-levels::before,
+.btn-back-to-levels::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.btn-back-to-levels::before {
+    display: none !important;
+}
+
+.btn-back-to-levels:hover,
+.btn-back-to-levels:focus,
+.btn-back-to-levels:active {
+    background: transparent !important;
+    background-image: none !important;
+    color: #FFD700 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-back-to-levels:hover {
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.9) !important;
+    transform: scale(1.1) !important;
+}
+
+.btn-back-to-levels:active {
+    transform: scale(0.95) !important;
+    opacity: 0.8;
 }
