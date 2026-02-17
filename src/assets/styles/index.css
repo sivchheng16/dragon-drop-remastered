@@ -437,3 +437,37 @@ button:hover {
         filter: drop-shadow(0 0 30px #FFD700) drop-shadow(0 0 40px #FFA500);
     }
 }
+
+/* Nav Back Button Styling - Override global button behavior */
+.btn-back-to-levels,
+.btn-back-to-levels::before,
+.btn-back-to-levels::after {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.btn-back-to-levels::before {
+    display: none !important;
+}
+
+.btn-back-to-levels:hover,
+.btn-back-to-levels:focus,
+.btn-back-to-levels:active {
+    background: transparent !important;
+    background-image: none !important;
+    color: #FFD700 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-back-to-levels:hover {
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.9) !important;
+    transform: scale(1.1) !important;
+}
+
+.btn-back-to-levels:active {
+    transform: scale(0.95) !important;
+    opacity: 0.8;
+}

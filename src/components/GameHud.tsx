@@ -2,11 +2,12 @@ import { GameState } from '../game/GameEngine';
 
 interface GameHudProps {
     gameState: GameState;
+    onBackToLevels?: () => void;
 }
 
 import { CollectibleIcon } from './CollectibleIcon';
 
-export const GameHud = ({ gameState }: GameHudProps) => {
+export const GameHud = ({ gameState, onBackToLevels }: GameHudProps) => {
     // Calculate star thresholds (matching GameEngine logic)
     const starThresholds = [60, 30]; // 3★: 60s+, 2★: 30s+, 1★: complete
 
@@ -30,11 +31,42 @@ export const GameHud = ({ gameState }: GameHudProps) => {
             color: '#FFFFFF',
             zIndex: 100
         }}>
+            {/* FAR LEFT: Back Button (Absolute) */}
+            {onBackToLevels && (
+                <button
+                    onClick={onBackToLevels}
+                    className="btn-back-to-levels"
+                    style={{
+                        position: 'absolute',
+                        left: '10px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '20px',
+                        color: '#FFD700',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px',
+                        transition: 'all 0.2s ease',
+                        fontFamily: "'Inter', sans-serif",
+                        fontWeight: '600',
+                        zIndex: 110 // Above navbar content
+                    }}
+                    title="Back to Levels"
+                >
+                    <span style={{ fontSize: '24px' }}>←</span>
+                    <span>level</span>
+                </button>
+            )}
+
             {/* LEFT: Time & Stars */}
-            <div className="hud-left" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                <div>Time: {Math.floor(gameState.timeLeft)}</div>
-                <div style={{ fontSize: '32px', color: '#FFD700' }}>
-                    {'★'.repeat(currentStars) + '☆'.repeat(3 - currentStars)}
+            <div className="hud-left" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <div>Time: {Math.floor(gameState.timeLeft)}</div>
+                    <div style={{ fontSize: '32px', color: '#FFD700' }}>
+                        {'★'.repeat(currentStars) + '☆'.repeat(3 - currentStars)}
+                    </div>
                 </div>
             </div>
 

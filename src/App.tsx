@@ -228,7 +228,10 @@ function App() {
 
             {(gameState.status === 'PLAYING' || gameState.status === 'WON' || gameState.status === 'GAME_OVER') && (
                 <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
-                    <GameHud gameState={gameState} />
+                    <GameHud
+                        gameState={gameState}
+                        onBackToLevels={() => setGameState(prev => ({ ...prev, status: 'LEVEL_SELECT' }))}
+                    />
                     <GameBoard gameState={gameState} onStateChange={setGameState} />
                 </div>
             )}
